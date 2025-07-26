@@ -2,33 +2,63 @@ import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Postcard.module.css";
 
 function Postcard() {
+    const submitPostcard = (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const postcardData = {
+            name: formData.get("name") || "Your name",
+            location: formData.get("location") || "Your location",
+            message: formData.get("message") || "Your message",
+            imageUrl: "https://placehold.co/500x300", // todo: update
+        };
+
+        fetch(`${import.meta.env.VITE_BASEURL}/api/v1/postcards/create`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postcardData),
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+                console.error("Error creating postcard:", error);
+            });
+    };
+
     return (
         <div className={styles.postcard}>
-            <div className={styles.stampPlacer}>
-                <div className={styles.stamp}>
-                    <div className={styles.stampImage}>
-                        <SVGIcon />
+            <form onSubmit={submitPostcard}>
+                <div className={styles.stampPlacer}>
+                    <div className={styles.stamp}>
+                        <div className={styles.stampImage}>
+                            <SVGIcon />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <form>
-                <textarea defaultValue="Your message"></textarea>
-                <div className={styles.rightSide}>
-                    <div>
-                        <input
-                            type="text"
-                            name="Your name"
-                            defaultValue="Your name"
-                        ></input>
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            name="location"
-                            defaultValue="Your location"
-                        ></input>
+                <div className={styles.mainForm}>
+                    <textarea
+                        name="message"
+                        defaultValue="Your message"
+                    ></textarea>
+                    <div className={styles.rightSide}>
+                        <div>
+                            <input
+                                type="text"
+                                name="name"
+                                defaultValue="Your name"
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                type="text"
+                                name="location"
+                                defaultValue="Your location"
+                            ></input>
+                        </div>
                     </div>
                 </div>
+                <button type="submit">Send</button>
             </form>
         </div>
     );

@@ -9,13 +9,12 @@ router.get("/", async (req, res) => {
         console.log(err);
         res.status(500).json(err);
     }
-
-    res.json({ message: "Get all postcards" });
 });
 
 router.post("/create", async (req, res) => {
     try {
-        const newPostcard = new Postcards(req);
+        const newPostcard = new Postcards(req.body);
+        console.log("req.body", req.body);
 
         const response = await newPostcard
             .save()
