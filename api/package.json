@@ -9,7 +9,7 @@
     },
     "author": "Christina Martinez",
     "license": "ISC",
-    "description": "",
+    "description": "Christina's take-home project for Resend",
     "dependencies": {
         "cors": "^2.8.5",
         "dotenv": "^17.2.1",
