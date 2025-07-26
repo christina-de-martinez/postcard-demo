@@ -1,0 +1,105 @@
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { Box } from "./Box";
+import { useRef, useState, useEffect } from "react";
+import styles from "./Mailbox.module.css";
+
+export default function Mailbox() {
+    const boxRef = useRef();
+    const [animations, setAnimations] = useState([]);
+
+    useEffect(() => {
+        // Add a small delay to ensure useAnimations has fully initialized
+        const timer = setTimeout(() => {
+            if (boxRef.current) {
+                const availableAnimations =
+                    boxRef.current.getAvailableAnimations();
+                console.log(
+                    "Setting animations in Mailbox:",
+                    availableAnimations
+                );
+                setAnimations(availableAnimations);
+            }
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const playAnimation = (animationName) => {
+        if (boxRef.current) {
+            boxRef.current.playAnimation(animationName);
+        }
+    };
+
+    return (
+        <div className={styles.canvas}>
+            <Canvas
+                camera={{
+                    position: [-0.0, 1.594, 1.044],
+                    fov: 35,
+                }}
+            >
+                <OrbitControls
+                    target={[0.022, 1.506, -1.666]}
+                    enablePan={true}
+                    enableZoom={true}
+                    enableRotate={true}
+                />
+                <ambientLight intensity={0.8} color="#f0f0f0" />
+                <directionalLight
+                    position={[5, 10, 5]}
+                    intensity={0.8}
+                    color="#ffffff"
+                    castShadow
+                />
+                <directionalLight
+                    position={[-5, 5, 5]}
+                    intensity={0.6}
+                    color="#e6f2ff"
+                />
+                <directionalLight
+                    position={[0, -2, 5]}
+                    intensity={0.3}
+                    color="#fff8e1"
+                />
+                <hemisphereLight
+                    skyColor="#87ceeb"
+                    groundColor="#8b7355"
+                    intensity={0.4}
+                />
+                <Box ref={boxRef} />
+            </Canvas>
+
+            <div
+                style={{
+                    position: "absolute",
+                    top: "20px",
+                    left: "20px",
+                    zIndex: 1000,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                    backgroundColor: "#333",
+                }}
+            >
+                {animations.map((animationName) => (
+                    <button
+                        key={animationName}
+                        onClick={() => playAnimation(animationName)}
+                        style={{
+                            padding: "10px 15px",
+                            backgroundColor: "#007acc",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                        }}
+                    >
+                        Play {animationName}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+}
