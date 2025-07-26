@@ -24,10 +24,7 @@ app.use("/api/v1/postcards", postcardsRoute);
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        const conn = await mongoose.connect(process.env.MONGO_URL);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.log(error);
@@ -35,9 +32,8 @@ const connectDB = async () => {
     }
 };
 
-//Connect to the database before listening
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log("listening for requests");
-    });
-});
+// Connect to database
+connectDB();
+
+// Export the app for Vercel
+module.exports = app;
