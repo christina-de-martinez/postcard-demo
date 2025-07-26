@@ -22,18 +22,36 @@ app.use(helmet());
 // api routes
 app.use("/api/v1/postcards", postcardsRoute);
 
+let isConnected = false;
+
 const connectDB = async () => {
+    if (isConnected) {
+        console.log("Using existing database connection");
+        return;
+    }
+
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URL);
+        const conn = await mongoose.connect(process.env.MONGO_URL, {
+            bufferCommands: false,
+            maxPoolSize: 1,
+        });
+        isConnected = conn.connections[0].readyState;
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
-        console.log(error);
-        process.exit(1);
+        console.log("Database connection error:", error);
+        throw error;
     }
 };
 
-// Connect to database
-connectDB();
+// Middleware to ensure database connection before handling requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        res.status(500).json({ error: "Database connection failed" });
+    }
+});
 
 // Export the app for Vercel
 module.exports = app;
