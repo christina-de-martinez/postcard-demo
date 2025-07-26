@@ -6,6 +6,7 @@ const cors = require("cors");
 const postcardsRoute = require("./routes/postcards");
 
 const app = express();
+// todo: fix cors
 app.use(
     cors({
         origin: [
