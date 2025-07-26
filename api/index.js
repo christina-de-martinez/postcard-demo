@@ -19,9 +19,6 @@ const PORT = process.env.PORT || 8008;
 app.use(express.json());
 app.use(helmet());
 
-// api routes
-app.use("/api/v1/postcards", postcardsRoute);
-
 let isConnected = false;
 
 const connectDB = async () => {
@@ -52,6 +49,9 @@ app.use(async (req, res, next) => {
         res.status(500).json({ error: "Database connection failed" });
     }
 });
+
+// api routes
+app.use("/api/v1/postcards", postcardsRoute);
 
 // Export the app for Vercel
 module.exports = app;
