@@ -8,7 +8,12 @@ const postcardsRoute = require("./routes/postcards");
 const app = express();
 app.use(
     cors({
-        origin: ["http://localhost:8008", "http://localhost:5173"],
+        origin: [
+            "http://localhost:8008",
+            "http://localhost:5173",
+            "https://postcard-demo-6mg5.vercel.app/",
+            "https://postcard-demo.vercel.app/",
+        ],
     })
 );
 dotenv.config();
