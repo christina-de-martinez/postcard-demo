@@ -12,11 +12,11 @@ app.use(
             "http://localhost:8008",
             "http://localhost:5173",
             "https://postcard-demo-6mg5.vercel.app",
-            "https://postcard-demo.vercel.app"
+            "https://postcard-demo.vercel.app",
         ],
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
 dotenv.config();
@@ -59,7 +59,21 @@ app.use(async (req, res, next) => {
 });
 
 // api routes
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "OK", message: "Server is running" });
+});
+
 app.use("/api/v1/postcards", postcardsRoute);
+
+// For local development - only start server if this file is run directly
+if (require.main === module) {
+    const PORT = process.env.PORT || 8008;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Health check: http://localhost:${PORT}/health`);
+        console.log(`API: http://localhost:${PORT}/api/v1/postcards`);
+    });
+}
 
 // Export the app for Vercel
 module.exports = app;
