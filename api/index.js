@@ -6,16 +6,17 @@ const cors = require("cors");
 const postcardsRoute = require("./routes/postcards");
 
 const app = express();
-// todo: fix cors
 app.use(
     cors({
         origin: [
             "http://localhost:8008",
             "http://localhost:5173",
-            "https://postcard-demo-6mg5.vercel.app/",
-            "https://postcard-demo.vercel.app/",
-            "*",
+            "https://postcard-demo-6mg5.vercel.app",
+            "https://postcard-demo.vercel.app"
         ],
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
     })
 );
 dotenv.config();
