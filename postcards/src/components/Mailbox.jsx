@@ -9,18 +9,19 @@ export default function Mailbox() {
     const [animations, setAnimations] = useState([]);
 
     useEffect(() => {
-        // Add a small delay to ensure useAnimations has fully initialized
         const timer = setTimeout(() => {
             if (boxRef.current) {
-                const availableAnimations =
-                    boxRef.current.getAvailableAnimations();
-                console.log(
-                    "Setting animations in Mailbox:",
-                    availableAnimations
-                );
-                setAnimations(availableAnimations);
+                try {
+                    const availableAnimations =
+                        boxRef.current.getAvailableAnimations();
+                    setAnimations(availableAnimations);
+                } catch (error) {
+                    console.error("Error getting animations:", error);
+                }
+            } else {
+                console.log("boxRef.current is null");
             }
-        }, 100);
+        }, 500);
 
         return () => clearTimeout(timer);
     }, []);
@@ -28,6 +29,24 @@ export default function Mailbox() {
     const playAnimation = (animationName) => {
         if (boxRef.current) {
             boxRef.current.playAnimation(animationName);
+        }
+    };
+
+    const refreshAnimations = () => {
+        if (boxRef.current) {
+            try {
+                const availableAnimations =
+                    boxRef.current.getAvailableAnimations();
+                console.log(
+                    "Manually fetched animations:",
+                    availableAnimations
+                );
+                setAnimations(availableAnimations);
+            } catch (error) {
+                console.error("Error in manual refresh:", error);
+            }
+        } else {
+            console.log("boxRef.current is still null");
         }
     };
 
@@ -41,9 +60,9 @@ export default function Mailbox() {
             >
                 <OrbitControls
                     target={[0.022, 1.506, -1.666]}
-                    enablePan={true}
-                    enableZoom={true}
-                    enableRotate={true}
+                    enablePan={false}
+                    enableZoom={false}
+                    enableRotate={false}
                 />
                 <ambientLight intensity={0.8} color="#f0f0f0" />
                 <directionalLight
@@ -80,8 +99,30 @@ export default function Mailbox() {
                     flexDirection: "column",
                     gap: "10px",
                     backgroundColor: "#333",
+                    padding: "10px",
+                    borderRadius: "5px",
                 }}
             >
+                <div style={{ color: "white", fontSize: "12px" }}>
+                    Animations found: {animations.length}
+                </div>
+
+                {/* Manual refresh button */}
+                <button
+                    onClick={refreshAnimations}
+                    style={{
+                        padding: "10px 15px",
+                        backgroundColor: "#9b59b6",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                    }}
+                >
+                    Refresh Animations
+                </button>
+
                 {animations.map((animationName) => (
                     <button
                         key={animationName}

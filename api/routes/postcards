@@ -1,13 +1,21 @@
 const Postcards = require("../models/postcards");
 const router = require("express").Router();
+const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
     try {
+        // Ensure connection is ready
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).json({ error: "Database not connected" });
+        }
+
         const postcards = await Postcards.find();
         res.status(200).json(postcards);
     } catch (err) {
         console.log("error:", err);
-        res.status(500).json(err);
+        res.status(500).json({
+            error: err.message || "Failed to fetch postcards",
+        });
     }
 });
 

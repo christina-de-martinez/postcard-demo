@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import styles from "./PostcardsGrid.module.css";
 
 function PostcardsGrid() {
     const [postcards, setPostcards] = useState([]);
@@ -15,15 +16,16 @@ function PostcardsGrid() {
             });
     }, []);
     return (
-        <div>
-            {postcards?.map((postcard) => (
-                <div key={postcard._id} className="postcard">
-                    <h3>{postcard.name}</h3>
-                    <p>{postcard.location}</p>
-                    <p>{postcard.message}</p>
-                    <img src={postcard.imageUrl} alt="Postcard" />
-                </div>
-            ))}
+        <div className={styles.postcardsGrid}>
+            {postcards &&
+                postcards?.map((postcard) => (
+                    <div key={postcard._id} className={styles.card}>
+                        <h3>{postcard.name}</h3>
+                        <p>{postcard.location}</p>
+                        <p>{postcard.message}</p>
+                        <img src={postcard.imageUrl} alt="Postcard" />
+                    </div>
+                ))}
         </div>
     );
 }

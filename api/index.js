@@ -37,10 +37,9 @@ const connectDB = async () => {
 
     try {
         const conn = await mongoose.connect(process.env.MONGO_URL, {
-            bufferCommands: false,
             maxPoolSize: 1,
         });
-        isConnected = conn.connections[0].readyState;
+        isConnected = conn.connections[0].readyState === 1;
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.log("Database connection error:", error);
@@ -52,8 +51,12 @@ const connectDB = async () => {
 app.use(async (req, res, next) => {
     try {
         await connectDB();
+        if (mongoose.connection.readyState !== 1) {
+            throw new Error("Database not connected");
+        }
         next();
     } catch (error) {
+        console.error("Database middleware error:", error);
         res.status(500).json({ error: "Database connection failed" });
     }
 });

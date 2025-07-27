@@ -6,9 +6,9 @@ import Mailbox from "./components/Mailbox";
 function App() {
     return (
         <>
-            {/* <Postcard />
-            <PostcardsGrid /> */}
             <Mailbox />
+            <Postcard />
+            <PostcardsGrid />
         </>
     );
 }
