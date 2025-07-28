@@ -1,8 +1,9 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { Html, OrbitControls } from "@react-three/drei";
 import { Box } from "./Box";
 import { useRef, useState, useEffect } from "react";
 import styles from "./Mailbox.module.css";
+import Postcard from "./Postcard";
 
 export default function Mailbox() {
     const boxRef = useRef();
@@ -59,7 +60,7 @@ export default function Mailbox() {
                 }}
             >
                 <OrbitControls
-                    target={[0.022, 1.506, -1.666]}
+                    target={[0.022, 1.356, -1.666]}
                     enablePan={false}
                     enableZoom={false}
                     enableRotate={false}
@@ -87,6 +88,19 @@ export default function Mailbox() {
                     intensity={0.4}
                 />
                 <Box ref={boxRef} />
+                <Html
+                    position={[0, -0.4, -5]}
+                    center
+                    distanceFactor={4}
+                    style={{
+                        color: "white",
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                    }}
+                >
+                    <Postcard />
+                </Html>
             </Canvas>
 
             <div
