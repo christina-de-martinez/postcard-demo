@@ -56,9 +56,9 @@ function Postcard() {
                                 defaultValue="Your location"
                             ></input>
                         </div>
+                        <button type="submit">Send</button>
                     </div>
                 </div>
-                <button type="submit">Send</button>
             </form>
         </div>
     );

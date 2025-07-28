@@ -33,23 +33,9 @@ export default function Mailbox() {
         }
     };
 
-    const refreshAnimations = () => {
-        if (boxRef.current) {
-            try {
-                const availableAnimations =
-                    boxRef.current.getAvailableAnimations();
-                console.log(
-                    "Manually fetched animations:",
-                    availableAnimations
-                );
-                setAnimations(availableAnimations);
-            } catch (error) {
-                console.error("Error in manual refresh:", error);
-            }
-        } else {
-            console.log("boxRef.current is still null");
-        }
-    };
+    useEffect(() => {
+        playAnimation("OPEN");
+    }, [animations]);
 
     return (
         <div className={styles.canvas}>
@@ -89,14 +75,18 @@ export default function Mailbox() {
                 />
                 <Box ref={boxRef} />
                 <Html
-                    position={[0, -0.4, -5]}
+                    position={[-3.7, 2, -23]}
                     center
-                    distanceFactor={4}
                     style={{
                         color: "white",
                         fontSize: "24px",
                         fontWeight: "bold",
                         textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                        width: "500px",
+                        height: "300px",
+                        transform: "scale(0.7)",
+                        transformOrigin: "center",
+                        pointerEvents: "auto",
                     }}
                 >
                     <Postcard />
@@ -120,22 +110,6 @@ export default function Mailbox() {
                 <div style={{ color: "white", fontSize: "12px" }}>
                     Animations found: {animations.length}
                 </div>
-
-                {/* Manual refresh button */}
-                <button
-                    onClick={refreshAnimations}
-                    style={{
-                        padding: "10px 15px",
-                        backgroundColor: "#9b59b6",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                    }}
-                >
-                    Refresh Animations
-                </button>
 
                 {animations.map((animationName) => (
                     <button
