@@ -5,6 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import styles from "./Mailbox.module.css";
 import Postcard from "./Postcard";
 import { useSpring, animated } from "@react-spring/web";
+import FlipButton from "./FlipButton";
 
 export default function Mailbox() {
     const boxRef = useRef();
@@ -94,12 +95,7 @@ export default function Mailbox() {
                     >
                         <div className={styles.frontSide}>
                             <Postcard />
-                            <button
-                                className={styles.flipButton}
-                                onClick={handleFlip}
-                            >
-                                Flip
-                            </button>
+                            <FlipButton handleFlip={handleFlip} />
                         </div>
 
                         <div className={styles.backSide}>
@@ -107,12 +103,7 @@ export default function Mailbox() {
                                 src="https://picsum.photos/1000/600?random=1"
                                 alt="Postcard back"
                             />
-                            <button
-                                className={styles.flipButton}
-                                onClick={handleFlip}
-                            >
-                                Flip
-                            </button>
+                            <FlipButton handleFlip={handleFlip} />
                         </div>
                     </animated.div>
                 </Html>
