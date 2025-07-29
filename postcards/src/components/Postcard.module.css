@@ -31,8 +31,8 @@
     .stamp {
         width: 120px;
         height: 140px;
-        top: 20px;
-        right: 140px;
+        top: 0px;
+        right: 116px;
         position: relative;
         display: flex;
         align-items: center;
@@ -96,6 +96,10 @@
             align-items: center;
             justify-content: center;
             width: 45%;
+
+            > div:first-child {
+                margin-top: 60px;
+            }
 
             input {
                 border: 1px solid transparent;

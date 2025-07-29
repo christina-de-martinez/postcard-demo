@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
     try {
-        // Ensure connection is ready
         if (mongoose.connection.readyState !== 1) {
             return res.status(500).json({ error: "Database not connected" });
         }
