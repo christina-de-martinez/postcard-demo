@@ -46,12 +46,32 @@
     justify-content: center;
     border-radius: 6px;
     background-color: #101010;
+}
 
-    img {
-        box-sizing: border-box;
-        width: 1000px;
-        height: 600px;
-        object-fit: cover;
-        border-radius: 4px;
+.backSide img {
+    box-sizing: border-box;
+    width: 1000px;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+@media (max-width: 752px) {
+    .html,
+    .frontSide,
+    .backSide,
+    .backSide img {
+        width: 800px;
+        height: 400px;
+    }
+}
+
+@media (max-width: 599px) {
+    .html,
+    .frontSide,
+    .backSide,
+    .backSide img {
+        width: 600px;
+        height: 400px;
     }
 }
