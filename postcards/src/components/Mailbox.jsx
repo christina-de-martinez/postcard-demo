@@ -4,10 +4,21 @@ import { Box } from "./Box";
 import { useRef, useState, useEffect } from "react";
 import styles from "./Mailbox.module.css";
 import Postcard from "./Postcard";
+import { useSpring, animated } from "@react-spring/web";
 
 export default function Mailbox() {
     const boxRef = useRef();
     const [animations, setAnimations] = useState([]);
+
+    const [flipped, setFlipped] = useState(false);
+    const { transform } = useSpring({
+        transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        config: { mass: 1, tension: 200, friction: 20 },
+    });
+
+    const handleFlip = () => {
+        setFlipped(!flipped);
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -74,25 +85,38 @@ export default function Mailbox() {
                     intensity={0.4}
                 />
                 <Box ref={boxRef} />
-                <Html
-                    position={[-3.7, 2, -23]}
-                    center
-                    style={{
-                        color: "white",
-                        fontSize: "24px",
-                        fontWeight: "bold",
-                        textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-                        width: "500px",
-                        height: "300px",
-                        transform: "scale(0.7)",
-                        transformOrigin: "center",
-                        pointerEvents: "auto",
-                    }}
-                >
-                    <Postcard />
+                <Html position={[0, -1.5, -23]} center className={styles.html}>
+                    <animated.div
+                        className={styles.animated}
+                        style={{
+                            transform: transform.to((t) => `scale(0.7) ${t}`),
+                        }}
+                    >
+                        <div className={styles.frontSide}>
+                            <Postcard />
+                            <button
+                                className={styles.flipButton}
+                                onClick={handleFlip}
+                            >
+                                Flip
+                            </button>
+                        </div>
+
+                        <div className={styles.backSide}>
+                            <img
+                                src="https://picsum.photos/1000/600?random=1"
+                                alt="Postcard back"
+                            />
+                            <button
+                                className={styles.flipButton}
+                                onClick={handleFlip}
+                            >
+                                Flip
+                            </button>
+                        </div>
+                    </animated.div>
                 </Html>
             </Canvas>
-
             <div
                 style={{
                     position: "absolute",

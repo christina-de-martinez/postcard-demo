@@ -3,8 +3,6 @@ import styles from "./PostcardsGrid.module.css";
 
 function PostcardsGrid() {
     const [postcards, setPostcards] = useState([]);
-    // todo: add react query
-    // todo: error/loading states
     useEffect(() => {
         fetch(`${import.meta.env.VITE_BASEURL}/api/v1/postcards`)
             .then((response) => response.json())
