@@ -1,7 +1,7 @@
 import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Postcard.module.css";
 
-function Postcard() {
+function Postcard({ imageNumber = 1 }) {
     const submitPostcard = (e) => {
         e.preventDefault();
 
@@ -10,7 +10,7 @@ function Postcard() {
             name: formData.get("name") || "Your name",
             location: formData.get("location") || "Your location",
             message: formData.get("message") || "Your message",
-            imageUrl: "https://placehold.co/500x300", // todo: update
+            imageUrl: `https://postcard-demo.vercel.app/${imageNumber}.jpg`,
         };
 
         fetch(`${import.meta.env.VITE_BASEURL}/api/v1/postcards/create`, {

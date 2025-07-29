@@ -7,7 +7,7 @@ import Postcard from "./Postcard";
 import { useSpring, animated } from "@react-spring/web";
 import FlipButton from "./FlipButton";
 
-export default function Mailbox() {
+export default function Mailbox({ imageNumber = 1 }) {
     const boxRef = useRef();
     const [animations, setAnimations] = useState([]);
 
@@ -94,13 +94,13 @@ export default function Mailbox() {
                         }}
                     >
                         <div className={styles.frontSide}>
-                            <Postcard />
+                            <Postcard imageNumber={imageNumber} />
                             <FlipButton handleFlip={handleFlip} />
                         </div>
 
                         <div className={styles.backSide}>
                             <img
-                                src="https://picsum.photos/1000/600?random=1"
+                                src={`/${imageNumber}.jpg`}
                                 alt="Postcard back"
                             />
                             <FlipButton handleFlip={handleFlip} />
