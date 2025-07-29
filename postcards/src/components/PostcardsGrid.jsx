@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import styles from "./PostcardsGrid.module.css";
 
-function PostcardsGrid() {
+function PostcardsGrid({ refreshTrigger }) {
     const [postcards, setPostcards] = useState([]);
-    useEffect(() => {
+    
+    const fetchPostcards = () => {
         fetch(`${import.meta.env.VITE_BASEURL}/api/v1/postcards`)
             .then((response) => response.json())
             .then((data) => {
@@ -12,7 +13,11 @@ function PostcardsGrid() {
             .catch((error) => {
                 console.error("Error fetching postcards:", error);
             });
-    }, []);
+    };
+    
+    useEffect(() => {
+        fetchPostcards();
+    }, [refreshTrigger]); // Add refreshTrigger as dependency
     return (
         <div className={styles.postcardsGrid}>
             {postcards &&

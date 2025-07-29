@@ -1,7 +1,7 @@
 import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Postcard.module.css";
 
-function Postcard({ imageNumber = 1 }) {
+function Postcard({ imageNumber = 1, onPostcardSubmitted }) {
     const submitPostcard = (e) => {
         e.preventDefault();
 
@@ -21,6 +21,15 @@ function Postcard({ imageNumber = 1 }) {
             body: JSON.stringify(postcardData),
         })
             .then((response) => response.json())
+            .then((data) => {
+                console.log("Postcard created successfully:", data);
+                // Call the callback to refetch postcards
+                if (onPostcardSubmitted) {
+                    onPostcardSubmitted();
+                }
+                // Reset the form
+                e.target.reset();
+            })
             .catch((error) => {
                 console.error("Error creating postcard:", error);
             });
