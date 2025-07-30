@@ -1,12 +1,43 @@
 .postcardsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 16px;
     padding: 10px;
 
     .card {
         background-color: #141414;
-        padding: 10px;
         border-radius: 4px;
+        height: 150px;
+        width: 250px;
+        position: relative;
+        transform-style: preserve-3d; /* Ensures 3D rendering of children */
+        transition: transform 0.6s ease-in-out; /* Smooth animation */
+    }
+    .card:hover {
+        transform: rotateY(180deg);
+    }
+
+    .cardContainer {
+        perspective: 1000px;
+    }
+
+    .front,
+    .back {
+        position: absolute;
+        border-radius: 4px;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+    }
+    .front {
+        padding: 10px;
+    }
+    .back {
+        transform: rotateY(180deg);
+        img {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     }
 }

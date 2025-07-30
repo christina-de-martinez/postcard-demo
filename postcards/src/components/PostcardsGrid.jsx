@@ -11,11 +11,17 @@ function PostcardsGrid() {
     return (
         <div className={styles.postcardsGrid}>
             {query.data?.map((postcard) => (
-                <div key={postcard._id} className={styles.card}>
-                    <h3>{postcard.name}</h3>
-                    <p>{postcard.location}</p>
-                    <p>{postcard.message}</p>
-                    <img src={postcard.imageUrl} alt="Postcard" />
+                <div class={styles.cardContainer} key={postcard._id}>
+                    <div class={styles.card}>
+                        <div class={styles.front}>
+                            <h3>{postcard.name}</h3>
+                            <p>{postcard.location}</p>
+                            <p>{postcard.message}</p>
+                        </div>
+                        <div class={styles.back}>
+                            <img src={postcard.imageUrl} alt="Postcard" />
+                        </div>
+                    </div>
                 </div>
             ))}
         </div>
