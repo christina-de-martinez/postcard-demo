@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { submitPostcard } from "../services/api";
 import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Postcard.module.css";
 
-function Postcard({ imageNumber = 1, onPostcardSubmitted }) {
+function Postcard({ imageNumber = 1 }) {
     const maxTextFieldLength = 50;
     const minNameLength = 1;
     const minLocationLength = 2;
     const minTextAreaLength = 2;
     const maxTextAreaLength = 500;
+
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: submitPostcard,
+        onSuccess: () => {
+            console.log("Postcard created successfully");
+            setSubmissionStatus(STATUSES.submitted);
+            resetForm();
+            queryClient.invalidateQueries({ queryKey: ["postcards"] });
+        },
+        onError: (error) => {
+            console.error("Error creating postcard:", error);
+            setSubmissionStatus(STATUSES.error);
+        },
+    });
 
     const defaultValues = {
         name: "Your name",
@@ -66,7 +84,7 @@ function Postcard({ imageNumber = 1, onPostcardSubmitted }) {
         setMessageValue(defaultValues.message);
     };
 
-    const submitPostcard = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         if (!canSubmit) {
             console.error(
@@ -83,28 +101,7 @@ function Postcard({ imageNumber = 1, onPostcardSubmitted }) {
             imageUrl: `https://postcard-demo.vercel.app/${imageNumber}.jpg`,
         };
 
-        fetch(`${import.meta.env.VITE_BASEURL}/api/v1/postcards/create`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postcardData),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("Postcard created successfully:", data);
-                setSubmissionStatus(STATUSES.submitted);
-                e.target.reset();
-                resetForm();
-                // Call the callback to refetch postcards
-                if (onPostcardSubmitted) {
-                    onPostcardSubmitted();
-                }
-            })
-            .catch((error) => {
-                console.error("Error creating postcard:", error);
-                setSubmissionStatus(STATUSES.error);
-            });
+        mutation.mutate(postcardData);
     };
 
     useEffect(() => {
@@ -118,7 +115,7 @@ function Postcard({ imageNumber = 1, onPostcardSubmitted }) {
 
     return (
         <div className={styles.postcard}>
-            <form onSubmit={submitPostcard}>
+            <form onSubmit={handleSubmit}>
                 <div className={styles.stampPlacer}>
                     <div className={styles.stamp}>
                         <div className={styles.stampImage}>

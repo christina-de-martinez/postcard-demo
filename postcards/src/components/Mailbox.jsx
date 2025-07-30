@@ -3,11 +3,11 @@ import { Html, OrbitControls } from "@react-three/drei";
 import { Box } from "./Box";
 import { useRef, useState, useEffect } from "react";
 import styles from "./Mailbox.module.css";
-import Postcard from "./Postcard";
+import PostcardWithProvider from "./PostcardWithProvider";
 import { useSpring, animated } from "@react-spring/web";
 import FlipButton from "./FlipButton";
 
-export default function Mailbox({ imageNumber = 1, onPostcardSubmitted }) {
+export default function Mailbox({ imageNumber = 1 }) {
     const boxRef = useRef();
     const [animations, setAnimations] = useState([]);
 
@@ -94,10 +94,7 @@ export default function Mailbox({ imageNumber = 1, onPostcardSubmitted }) {
                         }}
                     >
                         <div className={styles.frontSide}>
-                            <Postcard 
-                                imageNumber={imageNumber} 
-                                onPostcardSubmitted={onPostcardSubmitted}
-                            />
+                            <PostcardWithProvider imageNumber={imageNumber} />
                             <FlipButton handleFlip={handleFlip} />
                         </div>
 
