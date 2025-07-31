@@ -4,7 +4,7 @@ import { submitPostcard } from "../services/api";
 import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Postcard.module.css";
 
-function Postcard({ imageNumber = 1 }) {
+function Postcard({ imageNumber = 1, playAnimations }) {
     const maxTextFieldLength = 50;
     const minNameLength = 1;
     const minLocationLength = 2;
@@ -100,7 +100,7 @@ function Postcard({ imageNumber = 1 }) {
             message: formData.get("message") || "Your message",
             imageUrl: `https://postcard-demo.vercel.app/${imageNumber}.jpg`,
         };
-
+        playAnimations();
         mutation.mutate(postcardData);
     };
 

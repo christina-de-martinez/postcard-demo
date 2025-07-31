@@ -4,17 +4,27 @@ import { Box } from "./Box";
 import { useRef, useState, useEffect } from "react";
 import styles from "./Mailbox.module.css";
 import PostcardWithProvider from "./PostcardWithProvider";
-import { useSpring, animated } from "@react-spring/web";
+import { useSpring } from "@react-spring/web";
+import { animated } from "@react-spring/three";
 import FlipButton from "./FlipButton";
 
 export default function Mailbox({ imageNumber = 1 }) {
     const boxRef = useRef();
     const [animations, setAnimations] = useState([]);
+    const [inserted, setInserted] = useState(false);
 
     const [flipped, setFlipped] = useState(false);
     const { transform } = useSpring({
         transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         config: { mass: 1, tension: 200, friction: 20 },
+    });
+
+    // todo: animation for dropping in the postcard from above when form is submitted or upon initial load
+    // this should happen after the open animation
+    const { position, rotation } = useSpring({
+        position: inserted ? [-0.055, 1.52, 0] : [0, 1.55, 0.5],
+        rotation: inserted ? [0, Math.PI / 2, 0] : [0, 0, 0],
+        config: { mass: 1, tension: 120, friction: 18 },
     });
 
     const handleFlip = () => {
@@ -45,6 +55,13 @@ export default function Mailbox({ imageNumber = 1 }) {
         }
     };
 
+    const playAnimations = () => {
+        setInserted(true);
+        if (boxRef.current) {
+            boxRef.current.playAnimation("CLOSE");
+        }
+    };
+
     useEffect(() => {
         playAnimation("OPEN");
     }, [animations]);
@@ -58,10 +75,10 @@ export default function Mailbox({ imageNumber = 1 }) {
                 }}
             >
                 <OrbitControls
-                    target={[0.022, 1.356, -1.666]}
-                    enablePan={false}
-                    enableZoom={false}
-                    enableRotate={false}
+                    target={[0, 1.4, -1]}
+                    enablePan={true}
+                    enableZoom={true}
+                    enableRotate={true}
                 />
                 <ambientLight intensity={0.8} color="#f0f0f0" />
                 <directionalLight
@@ -85,16 +102,27 @@ export default function Mailbox({ imageNumber = 1 }) {
                     groundColor="#8b7355"
                     intensity={0.4}
                 />
-                <Box ref={boxRef} />
-                <Html position={[0, -1.5, -23]} center className={styles.html}>
-                    <animated.div
-                        className={styles.animated}
-                        style={{
-                            transform: transform.to((t) => `scale(0.7) ${t}`),
-                        }}
+                <Box ref={boxRef} position={[0, 0, 0]} />
+                <animated.group position={position} rotation={rotation}>
+                    <mesh>
+                        <boxGeometry args={[0.25, 0.15, 0.003]} />
+                        <meshStandardMaterial color="#000" />
+                    </mesh>
+
+                    <Html
+                        transform
+                        position={[-0.13, 0.08, 0.001]} // slightly in front of the front face
+                        rotation={[0, 0, 0]} // match the face orientation
+                        scale={0.21} // Scale down the HTML content
+                        distanceFactor={0.5} // smaller value = smaller content
+                        occlude
+                        className={styles.html}
                     >
                         <div className={styles.frontSide}>
-                            <PostcardWithProvider imageNumber={imageNumber} />
+                            <PostcardWithProvider
+                                imageNumber={imageNumber}
+                                playAnimations={playAnimations}
+                            />
                             <FlipButton handleFlip={handleFlip} />
                         </div>
 
@@ -105,8 +133,8 @@ export default function Mailbox({ imageNumber = 1 }) {
                             />
                             <FlipButton handleFlip={handleFlip} />
                         </div>
-                    </animated.div>
-                </Html>
+                    </Html>
+                </animated.group>
             </Canvas>
             <div
                 style={{
@@ -143,6 +171,20 @@ export default function Mailbox({ imageNumber = 1 }) {
                         Play {animationName}
                     </button>
                 ))}
+                <button
+                    onClick={() => setInserted((v) => !v)}
+                    style={{
+                        padding: "10px 15px",
+                        backgroundColor: "#28a745",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                    }}
+                >
+                    Animate
+                </button>
             </div>
         </div>
     );
