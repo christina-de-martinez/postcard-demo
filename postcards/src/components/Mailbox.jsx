@@ -14,20 +14,30 @@ export default function Mailbox({ imageNumber = 1 }) {
     const [inserted, setInserted] = useState(false);
 
     const [flipped, setFlipped] = useState(false);
-    const { transform } = useSpring({
-        transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        config: { mass: 1, tension: 200, friction: 20 },
-    });
 
     // todo: animation for dropping in the postcard from above when form is submitted or upon initial load
     // this should happen after the open animation
     const { position, rotation } = useSpring({
         position: inserted ? [-0.055, 1.52, 0] : [0, 1.55, 0.5],
-        rotation: inserted ? [0, Math.PI / 2, 0] : [0, 0, 0],
+        rotation: inserted
+            ? [0, Math.PI / 2 + (flipped ? Math.PI : 0), 0]
+            : [0, flipped ? Math.PI : 0, 0],
         config: { mass: 1, tension: 120, friction: 18 },
     });
 
+    const { frontOpacity } = useSpring({
+        frontOpacity: flipped ? 0 : 1,
+        config: { mass: 1, tension: 200, friction: 20 },
+    });
+
+    const { backOpacity } = useSpring({
+        backOpacity: flipped ? 1 : 0,
+        config: { mass: 1, tension: 200, friction: 20 },
+        delay: flipped ? 100 : 0, // delay showing back when flipping to avoid overlap
+    });
+
     const handleFlip = () => {
+        console.log("about to flip");
         setFlipped(!flipped);
     };
 
@@ -105,18 +115,22 @@ export default function Mailbox({ imageNumber = 1 }) {
                 <Box ref={boxRef} position={[0, 0, 0]} />
                 <animated.group position={position} rotation={rotation}>
                     <mesh>
-                        <boxGeometry args={[0.25, 0.15, 0.003]} />
-                        <meshStandardMaterial color="#000" />
+                        <boxGeometry args={[0.25, 0.15, 0.0025]} />
+                        <meshStandardMaterial transparent opacity={0} />
                     </mesh>
 
                     <Html
                         transform
-                        position={[-0.13, 0.08, 0.001]} // slightly in front of the front face
-                        rotation={[0, 0, 0]} // match the face orientation
-                        scale={0.21} // Scale down the HTML content
-                        distanceFactor={0.5} // smaller value = smaller content
+                        position={[-0.13, 0.08, 0.0015]} // front side, slightly in front of mesh
+                        rotation={[0, 0, 0]}
+                        scale={0.21}
+                        distanceFactor={0.5}
                         occlude
                         className={styles.html}
+                        style={{
+                            opacity: frontOpacity,
+                            pointerEvents: flipped ? "none" : "auto",
+                        }}
                     >
                         <div className={styles.frontSide}>
                             <PostcardWithProvider
@@ -125,8 +139,31 @@ export default function Mailbox({ imageNumber = 1 }) {
                             />
                             <FlipButton handleFlip={handleFlip} />
                         </div>
+                    </Html>
 
-                        <div className={styles.backSide}>
+                    <Html
+                        transform
+                        position={[0.13, 0.08, -0.0015]} // back side, slightly behind mesh
+                        rotation={[0, Math.PI, 0]} // rotated 180 degrees so content faces forward when group flips
+                        scale={0.21}
+                        distanceFactor={0.5}
+                        occlude
+                        className={styles.html}
+                        style={{
+                            opacity: backOpacity,
+                            pointerEvents: flipped ? "auto" : "none",
+                        }}
+                    >
+                        <div
+                            className={styles.backSide}
+                            style={{
+                                width: "1000px",
+                                height: "600px",
+                                color: "white",
+                                fontSize: "24px",
+                                fontWeight: "bold",
+                            }}
+                        >
                             <img
                                 src={`/${imageNumber}.jpg`}
                                 alt="Postcard back"
