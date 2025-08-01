@@ -1,12 +1,23 @@
-import { Canvas } from "@react-three/fiber";
-import { Html, OrbitControls } from "@react-three/drei";
-import { Box } from "./Box";
 import { useRef, useState, useEffect, Suspense } from "react";
-import styles from "./Mailbox.module.css";
-import PostcardWithProvider from "./PostcardWithProvider";
+import { Canvas } from "@react-three/fiber";
+import {
+    Html,
+    OrbitControls,
+    SoftShadows,
+    ContactShadows,
+} from "@react-three/drei";
+import {
+    EffectComposer,
+    Bloom,
+    Noise,
+    Vignette,
+} from "@react-three/postprocessing";
 import { useSpring } from "@react-spring/web";
 import { animated } from "@react-spring/three";
-import { DoubleSide } from "three";
+import { Box } from "./Box";
+import styles from "./Mailbox.module.css";
+import PostcardWithProvider from "./PostcardWithProvider";
+import { DoubleSide, ACESFilmicToneMapping } from "three";
 import FlipButton from "./FlipButton";
 
 export default function Mailbox({ imageNumber = 1 }) {
@@ -91,6 +102,9 @@ export default function Mailbox({ imageNumber = 1 }) {
                     position: [-0.0, 1.594, 1.044],
                     fov: 35,
                 }}
+                gl={{
+                    toneMapping: ACESFilmicToneMapping,
+                }}
             >
                 <OrbitControls
                     ref={controlsRef}
@@ -99,28 +113,52 @@ export default function Mailbox({ imageNumber = 1 }) {
                     enableZoom={true}
                     enableRotate={true}
                 />
-                <ambientLight intensity={0.8} color="#f0f0f0" />
+                <ambientLight intensity={0.2} color="#f0f0f0" />
                 <directionalLight
-                    position={[5, 10, 5]}
-                    intensity={0.8}
-                    color="#ffffff"
+                    position={[5, 8, 5]}
+                    intensity={1.2}
+                    color="#ffe9c5"
                     castShadow
                 />
                 <directionalLight
-                    position={[-5, 5, 5]}
-                    intensity={0.6}
-                    color="#e6f2ff"
+                    position={[-5, 5, 3]}
+                    intensity={0.5}
+                    color="#cfe7ff"
                 />
                 <directionalLight
-                    position={[0, -2, 5]}
+                    position={[0, 4, -6]}
                     intensity={0.3}
-                    color="#fff8e1"
+                    color="#ffffff"
                 />
                 <hemisphereLight
                     skyColor="#87ceeb"
                     groundColor="#8b7355"
                     intensity={0.4}
                 />
+                <SoftShadows
+                    frustum={3.75}
+                    size={0.005}
+                    near={9.5}
+                    samples={17}
+                    rings={11}
+                />
+                <ContactShadows
+                    position={[0, -1, 0]}
+                    opacity={0.5}
+                    width={10}
+                    height={10}
+                    blur={2.5}
+                    far={5}
+                />
+                <EffectComposer>
+                    <Bloom
+                        luminanceThreshold={0.2}
+                        luminanceSmoothing={0.9}
+                        height={300}
+                    />
+                    <Noise opacity={0.02} />
+                    <Vignette eskil={false} offset={0.2} darkness={0.5} />
+                </EffectComposer>
                 <Box ref={boxRef} position={[0, 0, 0]} />
                 <animated.group position={position} rotation={rotation}>
                     <mesh>

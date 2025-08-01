@@ -135,35 +135,42 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                         )}
                     </div>
                     <div className={styles.rightSide}>
-                        <div>
-                            <input
-                                type="text"
-                                name="name"
-                                value={nameValue}
-                                onChange={handleNameChange}
-                            ></input>
-                            <div className={styles.errorMessage}>
-                                {nameValue.length < minNameLength && (
-                                    <span>Please fill out your name</span>
-                                )}
+                        <div className={styles.inputsContainer}>
+                            <div>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={nameValue}
+                                    onChange={handleNameChange}
+                                ></input>
+                                <div className={styles.errorMessage}>
+                                    {nameValue.length < minNameLength && (
+                                        <span>Please fill out your name</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div>
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value={locationValue}
+                                    onChange={handleLocationChange}
+                                ></input>
+                                <div className={styles.errorMessage}>
+                                    {locationValue.length <
+                                        minLocationLength && (
+                                        <span>
+                                            Please fill out your location
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <input
-                                type="text"
-                                name="location"
-                                value={locationValue}
-                                onChange={handleLocationChange}
-                            ></input>
-                            <div className={styles.errorMessage}>
-                                {locationValue.length < minLocationLength && (
-                                    <span>Please fill out your location</span>
-                                )}
-                            </div>
+                        <div className={styles.buttonContainer}>
+                            <button type="submit" disabled={!canSubmit}>
+                                Send
+                            </button>
                         </div>
-                        <button type="submit" disabled={!canSubmit}>
-                            Send
-                        </button>
                     </div>
                 </div>
             </form>
