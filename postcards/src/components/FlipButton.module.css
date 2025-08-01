@@ -16,5 +16,6 @@
 
 .flipButton:hover {
     background-color: rgba(0, 0, 0, 0.8);
+    border-color: transparent;
     transform: scale(1.05);
 }

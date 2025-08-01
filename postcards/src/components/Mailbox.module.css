@@ -1,6 +1,6 @@
 .canvas {
     width: 100vw;
-    height: 100vh;
+    height: 80vh;
     background-color: #101010;
     margin: 0 auto;
 }
@@ -9,8 +9,6 @@
     color: white;
     transform-origin: center;
     pointer-events: auto;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
 }
 
 .animated {
@@ -31,7 +29,6 @@
 
 .backSide {
     position: absolute;
-    /* transform: rotateY(180deg); */
     transform-style: preserve-3d;
     display: flex;
     align-items: center;
