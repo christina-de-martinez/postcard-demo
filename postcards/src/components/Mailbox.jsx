@@ -1,15 +1,17 @@
 import { Canvas } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import { Box } from "./Box";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import styles from "./Mailbox.module.css";
 import PostcardWithProvider from "./PostcardWithProvider";
 import { useSpring } from "@react-spring/web";
 import { animated } from "@react-spring/three";
+import { DoubleSide } from "three";
 import FlipButton from "./FlipButton";
 
 export default function Mailbox({ imageNumber = 1 }) {
     const boxRef = useRef();
+    const controlsRef = useRef();
     const [animations, setAnimations] = useState([]);
     const [inserted, setInserted] = useState(false);
 
@@ -25,19 +27,7 @@ export default function Mailbox({ imageNumber = 1 }) {
         config: { mass: 1, tension: 120, friction: 18 },
     });
 
-    const { frontOpacity } = useSpring({
-        frontOpacity: flipped ? 0 : 1,
-        config: { mass: 1, tension: 200, friction: 20 },
-    });
-
-    const { backOpacity } = useSpring({
-        backOpacity: flipped ? 1 : 0,
-        config: { mass: 1, tension: 200, friction: 20 },
-        delay: flipped ? 100 : 0, // delay showing back when flipping to avoid overlap
-    });
-
     const handleFlip = () => {
-        console.log("about to flip");
         setFlipped(!flipped);
     };
 
@@ -76,6 +66,24 @@ export default function Mailbox({ imageNumber = 1 }) {
         playAnimation("OPEN");
     }, [animations]);
 
+    // Force camera update on initial load to fix HTML rendering
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (controlsRef.current) {
+                const controls = controlsRef.current;
+                const currentPosition = controls.object.position.clone();
+                controls.object.position.set(
+                    currentPosition.x + 0.01,
+                    currentPosition.y,
+                    currentPosition.z
+                );
+                controls.update();
+            }
+        }, 600);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <div className={styles.canvas}>
             <Canvas
@@ -85,6 +93,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                 }}
             >
                 <OrbitControls
+                    ref={controlsRef}
                     target={[0, 1.4, -1]}
                     enablePan={true}
                     enableZoom={true}
@@ -116,52 +125,71 @@ export default function Mailbox({ imageNumber = 1 }) {
                 <animated.group position={position} rotation={rotation}>
                     <mesh>
                         <boxGeometry args={[0.25, 0.15, 0.0025]} />
-                        <meshStandardMaterial transparent opacity={0} />
+                        <meshPhysicalMaterial
+                            transparent
+                            opacity={0.001}
+                            side={DoubleSide}
+                            color="black"
+                        />
                     </mesh>
-
                     <Html
                         transform
-                        position={[-0.13, 0.08, 0.0015]} // front side, slightly in front of mesh
+                        position={[-0.13, 0.08, 0.0025]} // front side, slightly in front of mesh
                         rotation={[0, 0, 0]}
                         scale={0.21}
                         distanceFactor={0.5}
                         occlude
                         className={styles.html}
                         style={{
-                            opacity: frontOpacity,
                             pointerEvents: flipped ? "none" : "auto",
+                            display: flipped ? "none" : "block",
                         }}
+                        material={
+                            <meshPhysicalMaterial
+                                side={DoubleSide}
+                                opacity={0.1}
+                                transparent
+                                color="black"
+                            />
+                        }
                     >
                         <div className={styles.frontSide}>
-                            <PostcardWithProvider
-                                imageNumber={imageNumber}
-                                playAnimations={playAnimations}
-                            />
+                            <Suspense fallback={null}>
+                                <PostcardWithProvider
+                                    imageNumber={imageNumber}
+                                    playAnimations={playAnimations}
+                                />
+                            </Suspense>
                             <FlipButton handleFlip={handleFlip} />
                         </div>
                     </Html>
-
                     <Html
                         transform
-                        position={[0.13, 0.08, -0.0015]} // back side, slightly behind mesh
+                        position={[0.13, 0.08, -0.0025]} // back side, behind mesh and offset
                         rotation={[0, Math.PI, 0]} // rotated 180 degrees so content faces forward when group flips
                         scale={0.21}
                         distanceFactor={0.5}
                         occlude
+                        center
                         className={styles.html}
                         style={{
-                            opacity: backOpacity,
                             pointerEvents: flipped ? "auto" : "none",
+                            display: !flipped ? "none" : "block",
                         }}
+                        material={
+                            <meshPhysicalMaterial
+                                side={DoubleSide}
+                                opacity={0.1}
+                                transparent
+                                color="white"
+                            />
+                        }
                     >
                         <div
                             className={styles.backSide}
                             style={{
                                 width: "1000px",
                                 height: "600px",
-                                color: "white",
-                                fontSize: "24px",
-                                fontWeight: "bold",
                             }}
                         >
                             <img
