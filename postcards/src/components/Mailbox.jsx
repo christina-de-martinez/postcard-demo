@@ -21,17 +21,73 @@ import { DoubleSide, ACESFilmicToneMapping } from "three";
 import FlipButton from "./FlipButton";
 
 export default function Mailbox({ imageNumber = 1 }) {
+    const minWindowWidthFor3D = 500;
     const boxRef = useRef();
     const controlsRef = useRef();
     const [animations, setAnimations] = useState([]);
-    const [inserted, setInserted] = useState(false);
-
     const [flipped, setFlipped] = useState(false);
+    const [inserted, setInserted] = useState(false);
+    const [windowWidth, setWindowWidth] = useState(
+        typeof window !== "undefined" ? window.innerWidth : 1024
+    );
+
+    // Responsive dimensions based on screen size
+    const getResponsiveDimensions = () => {
+        if (windowWidth <= minWindowWidthFor3D) {
+            return null;
+        } else if (windowWidth <= 599) {
+            return {
+                boxGeometry: [0, 0, 0.0025],
+                frontPosition: [-0.09, 0.08, 0.0025],
+                backPosition: [0.09, 0.08, -0.0025],
+                scale: 0.32,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [0, 1.55, 0.5],
+                },
+            };
+        } else if (windowWidth <= 752) {
+            return {
+                boxGeometry: [0.3, 0.15, 0.0025],
+                frontPosition: [-0.13, 0.08, 0.0025],
+                backPosition: [0.13, 0.08, -0.0025],
+                scale: 0.32,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [0, 1.55, 0.5],
+                },
+            };
+        } else {
+            return {
+                boxGeometry: [0.2, 0.15, 0.0025],
+                frontPosition: [-0.13, 0.08, 0.0025],
+                backPosition: [0.13, 0.08, -0.0025],
+                scale: 0.25,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [0, 1.55, 0.5],
+                },
+            };
+        }
+    };
+
+    const responsiveDimensions = getResponsiveDimensions();
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // todo: animation for dropping in the postcard from above when form is submitted or upon initial load
     // this should happen after the open animation
     const { position, rotation } = useSpring({
-        position: inserted ? [-0.055, 1.52, 0] : [0, 1.55, 0.5],
+        position: inserted
+            ? responsiveDimensions.springPosition.inserted
+            : responsiveDimensions.springPosition.default,
         rotation: inserted
             ? [0, Math.PI / 2 + (flipped ? Math.PI : 0), 0]
             : [0, flipped ? Math.PI : 0, 0],
@@ -162,19 +218,19 @@ export default function Mailbox({ imageNumber = 1 }) {
                 <Box ref={boxRef} position={[0, 0, 0]} />
                 <animated.group position={position} rotation={rotation}>
                     <mesh>
-                        <boxGeometry args={[0.25, 0.15, 0.0025]} />
+                        <boxGeometry args={responsiveDimensions.boxGeometry} />
                         <meshPhysicalMaterial
                             transparent
                             opacity={0.001}
                             side={DoubleSide}
-                            color="black"
+                            color="#141414"
                         />
                     </mesh>
                     <Html
                         transform
-                        position={[-0.13, 0.08, 0.0025]} // front side, slightly in front of mesh
+                        position={responsiveDimensions.frontPosition} // front side, slightly in front of mesh
                         rotation={[0, 0, 0]}
-                        scale={0.21}
+                        scale={responsiveDimensions.scale}
                         distanceFactor={0.5}
                         occlude
                         className={styles.html}
@@ -187,7 +243,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                                 side={DoubleSide}
                                 opacity={0.1}
                                 transparent
-                                color="black"
+                                color="#141414"
                             />
                         }
                     >
@@ -203,9 +259,9 @@ export default function Mailbox({ imageNumber = 1 }) {
                     </Html>
                     <Html
                         transform
-                        position={[0.13, 0.08, -0.0025]} // back side, behind mesh and offset
+                        position={responsiveDimensions.backPosition} // back side, behind mesh and offset
                         rotation={[0, Math.PI, 0]} // rotated 180 degrees so content faces forward when group flips
-                        scale={0.21}
+                        scale={responsiveDimensions.scale}
                         distanceFactor={0.5}
                         occlude
                         center
@@ -223,13 +279,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                             />
                         }
                     >
-                        <div
-                            className={styles.backSide}
-                            style={{
-                                width: "1000px",
-                                height: "600px",
-                            }}
-                        >
+                        <div className={styles.backSide}>
                             <img
                                 src={`/${imageNumber}.jpg`}
                                 alt="Postcard back"

@@ -128,6 +128,7 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                         name="message"
                         value={messageValue}
                         onChange={handleMessageChange}
+                        autoFocus
                     ></textarea>
                     <div className={styles.errorMessageTextArea}>
                         {messageValue.length < minTextAreaLength && (
