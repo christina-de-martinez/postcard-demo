@@ -28,6 +28,9 @@
 }
 
 .backSide {
+    width: min(95vw, 1000px);
+    height: auto;
+    aspect-ratio: 5 / 3;
     position: absolute;
     transform-style: preserve-3d;
     display: flex;
@@ -38,29 +41,9 @@
 }
 
 .backSide img {
-    box-sizing: border-box;
-    width: 1000px;
-    height: 600px;
+    height: 100%;
+    width: 100%;
+    aspect-ratio: 5 / 3;
     object-fit: cover;
     border-radius: 4px;
-}
-
-@media (max-width: 752px) {
-    .html,
-    .frontSide,
-    .backSide,
-    .backSide img {
-        width: 800px;
-        height: 400px;
-    }
-}
-
-@media (max-width: 599px) {
-    .html,
-    .frontSide,
-    .backSide,
-    .backSide img {
-        width: 600px;
-        height: 400px;
-    }
 }

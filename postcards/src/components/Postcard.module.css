@@ -4,11 +4,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: #141414;
+    height: 100%;
 
     .errorMessage {
         color: #fe636a;
-        font-size: 16px;
-        height: 30px;
+        font-size: 24px;
+        height: 24px;
         font-weight: normal;
     }
     .errorMessageTextArea {
@@ -77,8 +79,9 @@
     }
 
     .mainForm {
-        width: 1000px;
-        height: 600px;
+        width: min(95vw, 1000px);
+        height: auto;
+        aspect-ratio: 5 / 3;
         padding: 20px;
         border-radius: 6px;
         background-color: #141414;
@@ -112,26 +115,43 @@
             align-items: center;
             justify-content: center;
             width: 45%;
+            height: 100%;
 
-            > div:first-child {
+            .inputsContainer {
                 margin-top: 60px;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: center;
+                gap: 10px;
             }
 
             input {
                 border: 1px solid transparent;
                 background-color: transparent;
                 width: 100%;
-                border-bottom: 1px dashed #f1f1f1;
+                font-size: 30px;
+                border-bottom: 1px dotted #f1f1f1;
+            }
+
+            .buttonContainer {
+                width: 100%;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            button {
+                font-size: 30px;
+                padding: 10px 20px;
+                margin-top: 0;
+                cursor: pointer;
             }
         }
     }
 }
 
 @media (max-width: 752px) {
-    .postcard .mainForm {
-        width: 800px;
-        height: 500px;
-    }
     .postcard .stamp {
         width: 80px;
         height: 100px;
@@ -145,8 +165,7 @@
 
 @media (max-width: 599px) {
     .postcard .mainForm {
-        width: 600px;
-        height: 400px;
+        padding: 0px;
     }
     .postcard .stamp {
         width: 60px;
@@ -154,7 +173,36 @@
         top: -10px;
         right: 46px;
     }
-    .postcard form {
-        font-size: 18px;
+    .postcard form,
+    .postcard .mainForm .rightSide input,
+    .postcard .mainForm .rightSide button {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 500px) {
+    .postcard {
+        margin: 10px;
+        box-sizing: border-box;
+    }
+    .postcard .stamp {
+        width: 60px;
+        height: 80px;
+        top: -16px;
+        right: 40px;
+    }
+    .postcard form,
+    .postcard .mainForm .rightSide input,
+    .postcard .mainForm .rightSide button {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 415px) {
+    .postcard .stamp {
+        width: 35px;
+        height: 50px;
+        top: -16px;
+        right: 20px;
     }
 }
