@@ -13,12 +13,14 @@ import {
     Vignette,
 } from "@react-three/postprocessing";
 import { useSpring } from "@react-spring/web";
+// eslint-disable-next-line no-unused-vars
 import { animated } from "@react-spring/three";
-import { Box } from "./Box";
-import styles from "./Mailbox.module.css";
-import PostcardWithProvider from "./PostcardWithProvider";
 import { DoubleSide, ACESFilmicToneMapping } from "three";
+import { Box } from "./Box";
+import PostcardWithProvider from "./PostcardWithProvider";
 import FlipButton from "./FlipButton";
+import Countdown from "./Countdown";
+import styles from "./Mailbox.module.css";
 
 export default function Mailbox({ imageNumber = 1 }) {
     const minWindowWidthFor3D = 500;
@@ -27,9 +29,11 @@ export default function Mailbox({ imageNumber = 1 }) {
     const [animations, setAnimations] = useState([]);
     const [flipped, setFlipped] = useState(false);
     const [inserted, setInserted] = useState(false);
+    const [countdownRemaining, setCountdownRemaining] = useState(0);
     const [windowWidth, setWindowWidth] = useState(
         typeof window !== "undefined" ? window.innerWidth : 1024
     );
+    const [countdownInterval, setCountdownInterval] = useState(null);
 
     // Responsive dimensions based on screen size
     const getResponsiveDimensions = () => {
@@ -150,6 +154,42 @@ export default function Mailbox({ imageNumber = 1 }) {
 
         return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        return () => {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+        };
+    }, [countdownInterval]);
+
+    const startCountdown = (seconds) => {
+        setCountdownRemaining(seconds);
+        if (countdownInterval) clearInterval(countdownInterval);
+        const interval = setInterval(() => {
+            setCountdownRemaining((prevTime) => {
+                const newTime = prevTime - 1;
+                console.log(`Time remaining: ${newTime} seconds`);
+                if (newTime <= 0) {
+                    clearInterval(interval);
+                    setCountdownInterval(null);
+                    console.log("Countdown finished");
+                    return 0;
+                }
+                return newTime;
+            });
+        }, 1000);
+        setCountdownInterval(interval);
+    };
+
+    const cancelSend = () => {
+        console.log("Countdown cancelled");
+        setCountdownRemaining(0);
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            setCountdownInterval(null);
+        }
+    };
 
     return (
         <div className={styles.canvas}>
@@ -287,6 +327,12 @@ export default function Mailbox({ imageNumber = 1 }) {
                             <FlipButton handleFlip={handleFlip} />
                         </div>
                     </Html>
+                    <Html position={[0, 0.1, 0.0025]} center>
+                        <Countdown
+                            countdownRemaining={countdownRemaining}
+                            cancelSend={cancelSend}
+                        />
+                    </Html>
                 </animated.group>
             </Canvas>
             <div
@@ -337,6 +383,20 @@ export default function Mailbox({ imageNumber = 1 }) {
                     }}
                 >
                     Animate
+                </button>
+                <button
+                    onClick={() => startCountdown(30)}
+                    style={{
+                        padding: "10px 15px",
+                        backgroundColor: "#28a745",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                    }}
+                >
+                    Countdown from 30
                 </button>
             </div>
         </div>
