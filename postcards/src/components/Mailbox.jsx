@@ -26,6 +26,7 @@ export default function Mailbox({ imageNumber = 1 }) {
     const minWindowWidthFor3D = 500;
     const boxRef = useRef();
     const controlsRef = useRef();
+    const [isFlagUp, setIsFlagUp] = useState(false);
     const [animations, setAnimations] = useState([]);
     const [flipped, setFlipped] = useState(false);
     const [inserted, setInserted] = useState(false);
@@ -126,25 +127,9 @@ export default function Mailbox({ imageNumber = 1 }) {
         }
     };
 
-    const raiseFlagSmooth = () => {
+    const toggleFlag = () => {
         if (boxRef.current) {
-            if (flagState === "lowered") {
-                boxRef.current.playAnimationWithoutStopping("RaiseFlag");
-                setFlagState("raised");
-            } else if (flagState === "raised") {
-                console.log("Flag is already raised");
-            }
-        }
-    };
-
-    const lowerFlagSmooth = () => {
-        if (boxRef.current) {
-            if (flagState === "raised") {
-                boxRef.current.playAnimationWithoutStopping("RaiseFlag", true);
-                setFlagState("lowered");
-            } else if (flagState === "lowered") {
-                console.log("Flag is already lowered");
-            }
+            boxRef.current.toggleFlag();
         }
     };
 
@@ -156,15 +141,15 @@ export default function Mailbox({ imageNumber = 1 }) {
 
             // Wait for CLOSE animation to finish before raising flag
             setTimeout(() => {
-                raiseFlagSmooth();
+                toggleFlag();
             }, 1500); // Adjust timing based on your CLOSE animation duration
         }
     };
 
     // todo: do this when an email has been sent, not just at the end of countdown
     const handleScheduledPostcardSent = () => {
-        lowerFlagSmooth();
-        // setInserted(false);
+        toggleFlag();
+        console.log("Scheduled postcard sent");
     };
 
     useEffect(() => {
@@ -198,13 +183,18 @@ export default function Mailbox({ imageNumber = 1 }) {
     }, [countdownInterval]);
 
     const startCountdown = (seconds) => {
+        toggleFlag();
         setCountdownRemaining(seconds);
         if (countdownInterval) clearInterval(countdownInterval);
+        let hasFinished = false;
+
         const interval = setInterval(() => {
             setCountdownRemaining((prevTime) => {
                 const newTime = prevTime - 1;
                 console.log(`Time remaining: ${newTime} seconds`);
-                if (newTime <= 0) {
+
+                if (newTime <= 0 && !hasFinished) {
+                    hasFinished = true;
                     clearInterval(interval);
                     setCountdownInterval(null);
                     console.log("Countdown finished");
@@ -411,8 +401,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                     </button>
                 ))}
                 <button
-                    key={"raise-flag"}
-                    onClick={() => raiseFlagSmooth()}
+                    onClick={() => toggleFlag()}
                     style={{
                         padding: "10px 15px",
                         backgroundColor: "#28a745",
@@ -423,22 +412,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                         fontSize: "14px",
                     }}
                 >
-                    Raise Flag (Smart)
-                </button>
-                <button
-                    key={"lower-flag"}
-                    onClick={() => lowerFlagSmooth()}
-                    style={{
-                        padding: "10px 15px",
-                        backgroundColor: "#dc3545",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                    }}
-                >
-                    Lower Flag (Smart)
+                    Toggle flag
                 </button>
                 <button
                     onClick={() => setInserted((v) => !v)}
@@ -452,7 +426,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                         fontSize: "14px",
                     }}
                 >
-                    Animate
+                    Animate into mailbox
                 </button>
                 <button
                     onClick={() => startCountdown(5)}
