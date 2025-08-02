@@ -34,8 +34,8 @@ export default function Mailbox({ imageNumber = 1 }) {
         typeof window !== "undefined" ? window.innerWidth : 1024
     );
     const [countdownInterval, setCountdownInterval] = useState(null);
+    const [flagState, setFlagState] = useState("lowered");
 
-    // Responsive dimensions based on screen size
     const getResponsiveDimensions = () => {
         if (windowWidth <= minWindowWidthFor3D) {
             return null;
@@ -126,11 +126,45 @@ export default function Mailbox({ imageNumber = 1 }) {
         }
     };
 
-    const playAnimations = () => {
+    const raiseFlagSmooth = () => {
+        if (boxRef.current) {
+            if (flagState === "lowered") {
+                boxRef.current.playAnimationWithoutStopping("RaiseFlag");
+                setFlagState("raised");
+            } else if (flagState === "raised") {
+                console.log("Flag is already raised");
+            }
+        }
+    };
+
+    const lowerFlagSmooth = () => {
+        if (boxRef.current) {
+            if (flagState === "raised") {
+                boxRef.current.playAnimationWithoutStopping("RaiseFlag", true);
+                setFlagState("lowered");
+            } else if (flagState === "lowered") {
+                console.log("Flag is already lowered");
+            }
+        }
+    };
+
+    const handleSubmitFormAdditionalActions = () => {
+        console.log("Form submitted, playing animations");
         setInserted(true);
         if (boxRef.current) {
             boxRef.current.playAnimation("CLOSE");
+
+            // Wait for CLOSE animation to finish before raising flag
+            setTimeout(() => {
+                raiseFlagSmooth();
+            }, 1500); // Adjust timing based on your CLOSE animation duration
         }
+    };
+
+    // todo: do this when an email has been sent, not just at the end of countdown
+    const handleScheduledPostcardSent = () => {
+        lowerFlagSmooth();
+        // setInserted(false);
     };
 
     useEffect(() => {
@@ -174,6 +208,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                     clearInterval(interval);
                     setCountdownInterval(null);
                     console.log("Countdown finished");
+                    handleScheduledPostcardSent();
                     return 0;
                 }
                 return newTime;
@@ -291,7 +326,9 @@ export default function Mailbox({ imageNumber = 1 }) {
                             <Suspense fallback={null}>
                                 <PostcardWithProvider
                                     imageNumber={imageNumber}
-                                    playAnimations={playAnimations}
+                                    playAnimations={
+                                        handleSubmitFormAdditionalActions
+                                    }
                                 />
                             </Suspense>
                             <FlipButton handleFlip={handleFlip} />
@@ -352,6 +389,9 @@ export default function Mailbox({ imageNumber = 1 }) {
                 <div style={{ color: "white", fontSize: "12px" }}>
                     Animations found: {animations.length}
                 </div>
+                <div style={{ color: "white", fontSize: "12px" }}>
+                    Flag state: {flagState}
+                </div>
 
                 {animations.map((animationName) => (
                     <button
@@ -371,6 +411,36 @@ export default function Mailbox({ imageNumber = 1 }) {
                     </button>
                 ))}
                 <button
+                    key={"raise-flag"}
+                    onClick={() => raiseFlagSmooth()}
+                    style={{
+                        padding: "10px 15px",
+                        backgroundColor: "#28a745",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                    }}
+                >
+                    Raise Flag (Smart)
+                </button>
+                <button
+                    key={"lower-flag"}
+                    onClick={() => lowerFlagSmooth()}
+                    style={{
+                        padding: "10px 15px",
+                        backgroundColor: "#dc3545",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                    }}
+                >
+                    Lower Flag (Smart)
+                </button>
+                <button
                     onClick={() => setInserted((v) => !v)}
                     style={{
                         padding: "10px 15px",
@@ -385,7 +455,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                     Animate
                 </button>
                 <button
-                    onClick={() => startCountdown(30)}
+                    onClick={() => startCountdown(5)}
                     style={{
                         padding: "10px 15px",
                         backgroundColor: "#28a745",
@@ -396,7 +466,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                         fontSize: "14px",
                     }}
                 >
-                    Countdown from 30
+                    Countdown from 5
                 </button>
             </div>
         </div>

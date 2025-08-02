@@ -7,11 +7,11 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 
 export const Box = forwardRef((props, ref) => {
     const group = useRef();
-    const { nodes, materials, animations } = useGLTF("/mailbox2.glb");
+    const { nodes, materials, animations } = useGLTF("/mailbox.glb");
     const { actions } = useAnimations(animations, group);
 
     useImperativeHandle(ref, () => ({
-        playAnimation: (animationName) => {
+        playAnimation: (animationName, reverse = false) => {
             // Stop all current animations
             Object.values(actions).forEach((action) => {
                 if (action) {
@@ -24,7 +24,34 @@ export const Box = forwardRef((props, ref) => {
                 const action = actions[animationName];
                 action.reset();
                 action.setLoop(2200, 1); // LoopOnce = 2200, play only 1 time
+                action.clampWhenFinished = true;
+
+                if (reverse) {
+                    action.time = action.getClip().duration;
+                    action.timeScale = -1;
+                } else {
+                    action.timeScale = 1;
+                }
+
+                action.fadeIn(0.1).play();
+            } else {
+                console.log("No action found for:", animationName);
+            }
+        },
+        playAnimationWithoutStopping: (animationName, reverse = false) => {
+            if (actions[animationName]) {
+                const action = actions[animationName];
+                action.reset();
+                action.setLoop(2200, 1); // LoopOnce = 2200, play only 1 time
                 action.clampWhenFinished = true; // Keep the final pose when finished
+
+                if (reverse) {
+                    action.time = action.getClip().duration;
+                    action.timeScale = -1;
+                } else {
+                    action.timeScale = 1;
+                }
+
                 action.fadeIn(0.1).play();
             } else {
                 console.log("No action found for:", animationName);
@@ -102,6 +129,7 @@ export const Box = forwardRef((props, ref) => {
                         geometry={nodes.Door001.geometry}
                         material={materials["Base SF"]}
                         position={[0, -0.499, 0.327]}
+                        rotation={[1.564, 0, 0]}
                     >
                         <mesh
                             name="Door_Hinge003"
@@ -166,7 +194,7 @@ export const Box = forwardRef((props, ref) => {
                         geometry={nodes.Flag003.geometry}
                         material={materials["Flag SF"]}
                         position={[0.092, -0.401, 0.275]}
-                        rotation={[-0.262, 0, 0]}
+                        rotation={[-Math.PI / 2, 0, 0]}
                     />
                     <mesh
                         name="Horizontal_Beam_Bolts001"
@@ -312,4 +340,4 @@ export const Box = forwardRef((props, ref) => {
     );
 });
 
-useGLTF.preload("/mailbox2.glb");
+useGLTF.preload("/mailbox.glb");
