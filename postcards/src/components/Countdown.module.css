@@ -4,14 +4,18 @@
     align-items: center;
     justify-content: center;
     margin-top: 40px;
+    width: 600px;
+    height: 500px;
 
     p {
         font-size: 15rem;
         opacity: 0.4;
         user-select: none;
+        line-height: 1.2;
     }
 
     button {
+        font-size: 24px;
     }
 
     .responseContainer {

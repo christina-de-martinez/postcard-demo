@@ -1,25 +1,25 @@
 .postcardsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 16px;
-    padding: 10px;
-    /* background-color: #101010; */
+    padding: 60px 30px;
+
+    .cardContainer {
+        perspective: 1000px;
+    }
+    .cardContainer:hover .card {
+        transform: rotateY(180deg);
+    }
 
     .card {
         background-color: #141414;
         border-radius: 4px;
-        height: 150px;
-        width: 250px;
+        width: 100%;
+        max-width: 612px;
+        aspect-ratio: 5 / 3;
         position: relative;
-        transform-style: preserve-3d; /* Ensures 3D rendering of children */
-        transition: transform 0.6s ease-in-out; /* Smooth animation */
-    }
-    .card:hover {
-        transform: rotateY(180deg);
-    }
-
-    .cardContainer {
-        perspective: 1000px;
+        transform-style: preserve-3d;
+        transition: transform 0.6s ease-in-out;
     }
 
     .front,
@@ -31,7 +31,12 @@
         backface-visibility: hidden;
     }
     .front {
-        padding: 10px;
+        padding: 12px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        position: absolute;
     }
     .back {
         transform: rotateY(180deg);
@@ -40,5 +45,53 @@
             height: 100%;
             object-fit: cover;
         }
+    }
+
+    .leftSide,
+    .rightSide {
+        width: 45%;
+        height: 100%;
+    }
+
+    .leftSide {
+        width: 46%;
+        margin-right: 10px;
+        border-right: 1px solid #707070;
+        padding-right: 4px;
+    }
+    .rightSide {
+        width: 46%;
+        display: flex;
+        flex-direction: row;
+        padding-left: 2px;
+    }
+    .fromFields {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 4px;
+        width: calc(100% - 2px);
+    }
+    .gridStampPlacer {
+        border: 1px solid sandybrown;
+        height: 1px;
+        width: 1px;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+
+    p {
+        font-size: 1em;
+        display: -webkit-box;
+        -webkit-line-clamp: 9;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }

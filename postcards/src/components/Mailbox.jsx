@@ -133,15 +133,14 @@ export default function Mailbox({ imageNumber = 1 }) {
     };
 
     const handleSubmitFormAdditionalActions = () => {
-        console.log("Form submitted, playing animations");
         setInserted(true);
         if (boxRef.current) {
             boxRef.current.playAnimation("CLOSE");
 
             // Wait for CLOSE animation to finish before raising flag
             setTimeout(() => {
-                toggleFlag();
-            }, 1500); // Adjust timing based on your CLOSE animation duration
+                startCountdown(10);
+            }, 1500);
         }
     };
 
@@ -231,9 +230,9 @@ export default function Mailbox({ imageNumber = 1 }) {
                 <OrbitControls
                     ref={controlsRef}
                     target={[0, 1.4, -1]}
-                    enablePan={true}
-                    enableZoom={true}
-                    enableRotate={true}
+                    enablePan={false}
+                    enableZoom={false}
+                    enableRotate={false}
                 />
                 <ambientLight intensity={0.2} color="#f0f0f0" />
                 <directionalLight
@@ -431,7 +430,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                     Animate into mailbox
                 </button>
                 <button
-                    onClick={() => startCountdown(5)}
+                    onClick={() => startCountdown(15)}
                     style={{
                         padding: "10px 15px",
                         backgroundColor: "#28a745",
@@ -442,7 +441,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                         fontSize: "14px",
                     }}
                 >
-                    Countdown from 5
+                    Countdown from 15
                 </button>
             </div>
         </div>
