@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { submitPostcard } from "../services/api";
-import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Postcard.module.css";
+import Stamp from "./Stamp";
 
 function Postcard({ imageNumber = 1, playAnimations }) {
-    const maxTextFieldLength = 50;
+    const maxTextFieldLength = 22;
     const minNameLength = 1;
     const minLocationLength = 2;
     const minTextAreaLength = 2;
-    const maxTextAreaLength = 500;
+    const maxTextAreaLength = 320;
 
     const queryClient = useQueryClient();
 
@@ -117,11 +117,7 @@ function Postcard({ imageNumber = 1, playAnimations }) {
         <div className={styles.postcard}>
             <form onSubmit={handleSubmit}>
                 <div className={styles.stampPlacer}>
-                    <div className={styles.stamp}>
-                        <div className={styles.stampImage}>
-                            <SVGIcon />
-                        </div>
-                    </div>
+                    <Stamp />
                 </div>
                 <div className={styles.mainForm}>
                     <textarea
@@ -133,6 +129,17 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                     <div className={styles.errorMessageTextArea}>
                         {messageValue.length < minTextAreaLength && (
                             <span>Please type a message</span>
+                        )}
+                        {messageValue.length > maxTextAreaLength - 10 && (
+                            <span
+                                className={
+                                    messageValue.length > maxTextAreaLength
+                                        ? ""
+                                        : styles.warning
+                                }
+                            >
+                                {messageValue.length}/{maxTextAreaLength}
+                            </span>
                         )}
                     </div>
                     <div className={styles.rightSide}>

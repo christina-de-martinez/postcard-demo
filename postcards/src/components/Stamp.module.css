@@ -1,0 +1,81 @@
+.stamp {
+    width: 120px;
+    height: 140px;
+    top: 0px;
+    right: 116px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    --radius: 2px;
+    background-image: radial-gradient(var(--radius), transparent 98%, white),
+        linear-gradient(white 0 0);
+    background-repeat: round, no-repeat;
+    background-position: calc(var(--radius) * -1.5) calc(var(--radius) * -1.5),
+        50%;
+    background-size: calc(var(--radius) * 3) calc(var(--radius) * 3),
+        calc(100% - var(--radius) * 3) calc(100% - var(--radius) * 3);
+
+    .stampImage {
+        width: 86%;
+        height: 86%;
+        object-fit: cover;
+        border-radius: 2px;
+        background-color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.stamp.smaller {
+    width: 37px;
+    height: 50px;
+    top: 0px;
+    right: 37px;
+}
+
+@media (max-width: 752px) {
+    .stamp {
+        width: 80px;
+        height: 100px;
+        top: -6px;
+        right: 70px;
+    }
+}
+
+@media (max-width: 690px) {
+    .stamp.smaller {
+        width: 60px;
+        height: 80px;
+        right: 60px;
+    }
+}
+
+@media (max-width: 599px) {
+    .stamp {
+        width: 60px;
+        height: 80px;
+        top: -10px;
+        right: 46px;
+    }
+}
+
+@media (max-width: 500px) {
+    .stamp {
+        width: 60px;
+        height: 80px;
+        top: -16px;
+        right: 40px;
+    }
+}
+
+@media (max-width: 415px) {
+    .stamp {
+        width: 35px;
+        height: 50px;
+        top: -16px;
+        right: 20px;
+    }
+}
