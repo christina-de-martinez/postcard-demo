@@ -1,20 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
+import { memo } from "react";
 import { fetchPostcards } from "../services/api";
 import styles from "./PostcardsGrid.module.css";
 import Stamp from "./Stamp";
 
-function PostcardsGrid() {
+const PostcardsGrid = memo(function PostcardsGrid() {
     const query = useQuery({
         queryKey: ["postcards"],
         queryFn: fetchPostcards,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        cacheTime: 10 * 60 * 1000, // 10 minutes
     });
 
     return (
         <div className={styles.postcardsGrid}>
             {query.data?.map((postcard) => (
-                <div class={styles.cardContainer} key={postcard._id}>
-                    <div class={styles.card}>
-                        <div class={styles.front}>
+                <div className={styles.cardContainer} key={postcard._id}>
+                    <div className={styles.card}>
+                        <div className={styles.front}>
                             <div className={styles.leftSide}>
                                 <p>{postcard.message}</p>
                             </div>
@@ -28,7 +31,7 @@ function PostcardsGrid() {
                                 </div>
                             </div>
                         </div>
-                        <div class={styles.back}>
+                        <div className={styles.back}>
                             <img src={postcard.imageUrl} alt="Postcard" />
                         </div>
                     </div>
@@ -36,6 +39,6 @@ function PostcardsGrid() {
             ))}
         </div>
     );
-}
+});
 
 export default PostcardsGrid;

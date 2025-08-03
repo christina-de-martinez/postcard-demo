@@ -1,7 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 import { useSpring, a } from "@react-spring/three";
+import { memo } from "react";
 
-function Flag({ isUp, geometry, material }) {
+const Flag = memo(function Flag({ isUp, geometry, material }) {
     const { rotation } = useSpring({
         rotation: isUp ? [0, 0, 0] : [-Math.PI / 2, 0, 0],
         config: {
@@ -22,6 +23,6 @@ function Flag({ isUp, geometry, material }) {
             rotation={rotation}
         />
     );
-}
+});
 
 export default Flag;

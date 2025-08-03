@@ -1,6 +1,7 @@
+import { memo } from "react";
 import styles from "./Countdown.module.css";
 
-function Countdown({ countdownRemaining, cancelSend, resendResponse = null }) {
+const Countdown = memo(function Countdown({ countdownRemaining, cancelSend, resendResponse = null }) {
     const resendResponseMessage = resendResponse === "200" ? "Sent" : "Whoops!";
     const responseSubmessage = resendResponse !== "200" ? "Try again." : null;
 
@@ -25,6 +26,6 @@ function Countdown({ countdownRemaining, cancelSend, resendResponse = null }) {
             )}
         </div>
     );
-}
+});
 
 export default Countdown;
