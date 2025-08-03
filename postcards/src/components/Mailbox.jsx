@@ -84,7 +84,7 @@ export default function Mailbox({ imageNumber = 1 }) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 setWindowWidth(window.innerWidth);
-                forceCameraUpdate();
+                window.location.reload();
             }, 150);
         };
 
@@ -178,11 +178,13 @@ export default function Mailbox({ imageNumber = 1 }) {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            forceCameraUpdate();
+            if (windowWidth >= minWindowWidthFor3D) {
+                forceCameraUpdate();
+            }
         }, 600);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [windowWidth]);
 
     useEffect(() => {
         return () => {
