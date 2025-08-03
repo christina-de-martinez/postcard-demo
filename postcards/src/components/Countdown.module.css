@@ -1,0 +1,40 @@
+.countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+
+    p {
+        font-size: 15rem;
+        opacity: 0.4;
+        user-select: none;
+    }
+
+    button {
+    }
+
+    .responseContainer {
+        opacity: 1;
+        animation: fadeOut 1s ease-in-out 3s forwards;
+        text-align: center;
+    }
+    .responseMessage {
+        font-size: 12rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .responseSubmessage {
+        font-size: 4rem;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
