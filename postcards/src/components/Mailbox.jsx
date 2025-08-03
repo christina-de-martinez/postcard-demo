@@ -78,12 +78,21 @@ export default function Mailbox({ imageNumber = 1 }) {
     const responsiveDimensions = getResponsiveDimensions();
 
     useEffect(() => {
+        let resizeTimeout;
+
         const handleResize = () => {
-            setWindowWidth(window.innerWidth);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                setWindowWidth(window.innerWidth);
+                window.location.reload();
+            }, 150);
         };
 
         window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+            clearTimeout(resizeTimeout);
+        };
     }, []);
 
     // todo: animation for dropping in the postcard from above when form is submitted or upon initial load
@@ -154,23 +163,28 @@ export default function Mailbox({ imageNumber = 1 }) {
         playAnimation("OPEN");
     }, [animations]);
 
-    // Force camera update on initial load to fix HTML rendering
+    const forceCameraUpdate = () => {
+        if (controlsRef.current) {
+            const controls = controlsRef.current;
+            const currentPosition = controls.object.position.clone();
+            controls.object.position.set(
+                currentPosition.x,
+                currentPosition.y,
+                currentPosition.z + 0.01
+            );
+            controls.update();
+        }
+    };
+
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (controlsRef.current) {
-                const controls = controlsRef.current;
-                const currentPosition = controls.object.position.clone();
-                controls.object.position.set(
-                    currentPosition.x + 0.01,
-                    currentPosition.y,
-                    currentPosition.z
-                );
-                controls.update();
+            if (windowWidth >= minWindowWidthFor3D) {
+                forceCameraUpdate();
             }
         }, 600);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [windowWidth]);
 
     useEffect(() => {
         return () => {
@@ -190,13 +204,11 @@ export default function Mailbox({ imageNumber = 1 }) {
         const interval = setInterval(() => {
             setCountdownRemaining((prevTime) => {
                 const newTime = prevTime - 1;
-                console.log(`Time remaining: ${newTime} seconds`);
 
                 if (newTime <= 0 && !hasFinished) {
                     hasFinished = true;
                     clearInterval(interval);
                     setCountdownInterval(null);
-                    console.log("Countdown finished");
                     handleScheduledPostcardSent();
                     return 0;
                 }
@@ -207,7 +219,6 @@ export default function Mailbox({ imageNumber = 1 }) {
     };
 
     const cancelSend = () => {
-        console.log("Countdown cancelled");
         setCountdownRemaining(0);
         setShowCountdown(false);
         if (countdownInterval) {
