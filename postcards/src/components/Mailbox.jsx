@@ -26,16 +26,15 @@ export default function Mailbox({ imageNumber = 1 }) {
     const minWindowWidthFor3D = 500;
     const boxRef = useRef();
     const controlsRef = useRef();
-    const [isFlagUp, setIsFlagUp] = useState(false);
     const [animations, setAnimations] = useState([]);
     const [flipped, setFlipped] = useState(false);
     const [inserted, setInserted] = useState(false);
     const [countdownRemaining, setCountdownRemaining] = useState(0);
+    const [showCountdown, setShowCountdown] = useState(false);
     const [windowWidth, setWindowWidth] = useState(
         typeof window !== "undefined" ? window.innerWidth : 1024
     );
     const [countdownInterval, setCountdownInterval] = useState(null);
-    const [flagState, setFlagState] = useState("lowered");
 
     const getResponsiveDimensions = () => {
         if (windowWidth <= minWindowWidthFor3D) {
@@ -65,7 +64,7 @@ export default function Mailbox({ imageNumber = 1 }) {
         } else {
             return {
                 boxGeometry: [0.2, 0.15, 0.0025],
-                frontPosition: [-0.13, 0.08, 0.0025],
+                frontPosition: [-0.16, 0.08, 0.0025],
                 backPosition: [0.13, 0.08, -0.0025],
                 scale: 0.25,
                 springPosition: {
@@ -185,6 +184,7 @@ export default function Mailbox({ imageNumber = 1 }) {
     const startCountdown = (seconds) => {
         toggleFlag();
         setCountdownRemaining(seconds);
+        setShowCountdown(true);
         if (countdownInterval) clearInterval(countdownInterval);
         let hasFinished = false;
 
@@ -210,6 +210,7 @@ export default function Mailbox({ imageNumber = 1 }) {
     const cancelSend = () => {
         console.log("Countdown cancelled");
         setCountdownRemaining(0);
+        setShowCountdown(false);
         if (countdownInterval) {
             clearInterval(countdownInterval);
             setCountdownInterval(null);
@@ -354,13 +355,17 @@ export default function Mailbox({ imageNumber = 1 }) {
                             <FlipButton handleFlip={handleFlip} />
                         </div>
                     </Html>
-                    <Html position={[0, 0.1, 0.0025]} center>
+                </animated.group>
+                {showCountdown && (
+                    <Html position={[0, 1.594, 0.5]} center>
                         <Countdown
                             countdownRemaining={countdownRemaining}
                             cancelSend={cancelSend}
+                            resendResponse={"200"}
+                            setShowCountdown={setShowCountdown}
                         />
                     </Html>
-                </animated.group>
+                )}
             </Canvas>
             <div
                 style={{
@@ -378,9 +383,6 @@ export default function Mailbox({ imageNumber = 1 }) {
             >
                 <div style={{ color: "white", fontSize: "12px" }}>
                     Animations found: {animations.length}
-                </div>
-                <div style={{ color: "white", fontSize: "12px" }}>
-                    Flag state: {flagState}
                 </div>
 
                 {animations.map((animationName) => (
