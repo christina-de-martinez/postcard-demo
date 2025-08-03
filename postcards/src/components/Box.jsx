@@ -8,7 +8,7 @@ import Flag from "./Flag";
 
 export const Box = forwardRef((props, ref) => {
     const group = useRef();
-    const { nodes, materials, animations } = useGLTF("/mailbox.glb");
+    const { nodes, materials, animations } = useGLTF("/mailbox_resend.glb");
     const { actions } = useAnimations(animations, group);
     const [isFlagUp, setIsFlagUp] = useState(false);
 
@@ -340,4 +340,4 @@ export const Box = forwardRef((props, ref) => {
     );
 });
 
-useGLTF.preload("/mailbox2.glb");
+useGLTF.preload("/mailbox_resend.glb");
