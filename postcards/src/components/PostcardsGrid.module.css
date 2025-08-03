@@ -74,6 +74,7 @@
         width: calc(100% - 2px);
     }
     .gridStampPlacer {
+        border: 1px solid sandybrown;
         height: 1px;
         width: 1px;
         position: absolute;
