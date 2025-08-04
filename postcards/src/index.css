@@ -12,11 +12,18 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    --resend-error-color: #fe636a;
+    --resend-warning-color: #feca15;
+    --resend-main-background-color: #000;
+    --resend-secondary-background-color: #141414;
+    --resend-white-color: #f1f1f1;
+    overflow-x: hidden;
 }
 
 a {
     font-weight: 500;
-    color: #f1f1f1;
+    color: var(--resend-white-color);
     text-decoration: inherit;
 }
 a:hover {
@@ -49,22 +56,9 @@ button {
     transition: border-color 0.25s;
 }
 button:hover {
-    border-color: #000;
+    border-color: var(--resend-main-background-color);
 }
 button:focus,
 button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
-    a:hover {
-        color: #f1f1f1;
-    }
-    button {
-        background-color: #f9f9f9;
-    }
 }

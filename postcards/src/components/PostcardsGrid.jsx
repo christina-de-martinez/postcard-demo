@@ -12,6 +12,34 @@ const PostcardsGrid = memo(function PostcardsGrid() {
         cacheTime: 10 * 60 * 1000, // 10 minutes
     });
 
+    if (query.isLoading) {
+        return (
+            <div className={styles.errorOrLoadingContainer}>
+                <p className={styles.loading}>Loading...</p>
+            </div>
+        );
+    }
+    if (query.isError) {
+        return (
+            <div className={styles.errorOrLoadingContainer}>
+                <div className={styles.error}>
+                    <h2>Error loading postcards</h2>
+                    <p>Try again later</p>
+                </div>
+            </div>
+        );
+    }
+    if (query.data.length === 0) {
+        return (
+            <div className={styles.errorOrLoadingContainer}>
+                <div className={styles.empty}>
+                    <h2>No postcards yet</h2>
+                    <p>Submit one to see it here</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.postcardsGrid}>
             {query.data?.map((postcard) => (
