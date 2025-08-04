@@ -1,46 +1,26 @@
 import { useEffect, useState, useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { submitPostcard } from "../services/api";
 import styles from "./Postcard.module.css";
 import Stamp from "./Stamp";
 
-function Postcard({ imageNumber = 1, playAnimations }) {
+function Postcard({
+    nameValue,
+    setNameValue,
+    locationValue,
+    setLocationValue,
+    messageValue,
+    setMessageValue,
+    submissionStatus,
+    setSubmissionStatus,
+    handleSubmit,
+    mutation,
+}) {
     const maxTextFieldLength = 22;
     const minNameLength = 1;
     const minLocationLength = 2;
     const minTextAreaLength = 2;
     const maxTextAreaLength = 320;
 
-    const queryClient = useQueryClient();
-
-    const mutation = useMutation({
-        mutationFn: submitPostcard,
-        onSuccess: () => {
-            setSubmissionStatus(STATUSES.submitted);
-            resetForm();
-            queryClient.invalidateQueries({ queryKey: ["postcards"] });
-        },
-        onError: (error) => {
-            console.error("Error creating postcard:", error);
-            setSubmissionStatus(STATUSES.error);
-        },
-    });
-
-    const defaultValues = {
-        name: "Your name",
-        location: "Your location",
-        message: "Your message",
-    };
-
-    const [nameValue, setNameValue] = useState(defaultValues.name);
-    const [locationValue, setLocationValue] = useState(defaultValues.location);
-    const [messageValue, setMessageValue] = useState(defaultValues.message);
     const [canSubmit, setCanSubmit] = useState(false);
-    const [submissionStatus, setSubmissionStatus] = useState(null);
-    const STATUSES = {
-        submitted: "submitted",
-        error: "error",
-    };
 
     useEffect(() => {
         setCanSubmit(
@@ -52,6 +32,20 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                 messageValue.length < maxTextAreaLength
         );
     }, [nameValue, locationValue, messageValue]);
+
+    const handleSubmitPostcard = useCallback(
+        (e) => {
+            e.preventDefault();
+            if (canSubmit) {
+                handleSubmit(e);
+            } else {
+                console.error(
+                    "Form cannot be submitted due to validation errors"
+                );
+            }
+        },
+        [canSubmit, handleSubmit]
+    );
 
     const handleNameChange = (e) => {
         const value = e.target.value;
@@ -77,45 +71,18 @@ function Postcard({ imageNumber = 1, playAnimations }) {
         setMessageValue(value);
     };
 
-    const resetForm = useCallback(() => {
-        setNameValue(defaultValues.name);
-        setLocationValue(defaultValues.location);
-        setMessageValue(defaultValues.message);
-    }, [defaultValues.name, defaultValues.location, defaultValues.message]);
-
-    const handleSubmit = useCallback(
-        (e) => {
-            e.preventDefault();
-            if (!canSubmit) {
-                return;
-            }
-
-            const formData = new FormData(e.target);
-            const postcardData = {
-                name: formData.get("name") || "Your name",
-                location: formData.get("location") || "Your location",
-                message: formData.get("message") || "Your message",
-                imageUrl: `${import.meta.env.VITE_BASEURL}/${imageNumber}.jpg`,
-            };
-            playAnimations();
-            mutation.mutate(postcardData);
-            resetForm();
-        },
-        [canSubmit, imageNumber, playAnimations, mutation, resetForm]
-    );
-
     useEffect(() => {
         if (submissionStatus) {
             const timer = setTimeout(() => {
                 setSubmissionStatus(null);
-            }, 3000);
+            }, 14600);
             return () => clearTimeout(timer);
         }
-    }, [submissionStatus]);
+    }, [submissionStatus, setSubmissionStatus]);
 
     return (
         <div className={styles.postcard}>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmitPostcard}>
                 <div className={styles.stampPlacer}>
                     <Stamp />
                 </div>
@@ -191,18 +158,6 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                     </div>
                 </div>
             </form>
-            <div className={styles.submittedOrError}>
-                {submissionStatus === STATUSES.submitted && (
-                    <span className={styles.successMessage}>
-                        Thanks for your postcard!
-                    </span>
-                )}
-                {submissionStatus === STATUSES.error && (
-                    <span className={styles.errorMessage}>
-                        Oops! Something went wrong. Please try again.
-                    </span>
-                )}
-            </div>
         </div>
     );
 }

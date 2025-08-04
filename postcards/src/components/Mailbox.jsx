@@ -23,14 +23,26 @@ import { useSpring } from "@react-spring/web";
 // eslint-disable-next-line no-unused-vars
 import { animated } from "@react-spring/three";
 import { DoubleSide, ACESFilmicToneMapping } from "three";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { submitPostcard, submitPostcardWithAttachment } from "../services/api";
 import { Box } from "./Box";
-import PostcardWithProvider from "./PostcardWithProvider";
+import Postcard from "./Postcard";
 import FlipButton from "./FlipButton";
 import Countdown from "./Countdown";
+import { cancelSendEmail } from "../services/api";
 import styles from "./Mailbox.module.css";
 
 export default function Mailbox({ imageNumber = 1 }) {
     const minWindowWidthFor3D = 500;
+    const STATUSES = {
+        submitted: "submitted",
+        error: "error",
+    };
+    const defaultValues = {
+        name: "Your name",
+        location: "Your location",
+        message: "Your message",
+    };
     const boxRef = useRef();
     const controlsRef = useRef();
     const [animations, setAnimations] = useState([]);
@@ -42,6 +54,11 @@ export default function Mailbox({ imageNumber = 1 }) {
         typeof window !== "undefined" ? window.innerWidth : 1024
     );
     const [countdownInterval, setCountdownInterval] = useState(null);
+    const [resendEmailId, setResendEmailId] = useState(null);
+    const [nameValue, setNameValue] = useState(defaultValues.name);
+    const [locationValue, setLocationValue] = useState(defaultValues.location);
+    const [messageValue, setMessageValue] = useState(defaultValues.message);
+    const [submissionStatus, setSubmissionStatus] = useState(null);
 
     const getResponsiveDimensions = useCallback(() => {
         if (windowWidth <= minWindowWidthFor3D) {
@@ -148,10 +165,17 @@ export default function Mailbox({ imageNumber = 1 }) {
 
     const handleScheduledPostcardSent = useCallback(() => {
         toggleFlag();
+        setResendEmailId(null);
         setTimeout(() => {
             setInserted(false);
         }, 2000);
     }, [toggleFlag]);
+
+    const resetForm = useCallback(() => {
+        setNameValue(defaultValues.name);
+        setLocationValue(defaultValues.location);
+        setMessageValue(defaultValues.message);
+    }, [defaultValues.name, defaultValues.location, defaultValues.message]);
 
     const startCountdown = useCallback(
         (seconds) => {
@@ -166,10 +190,16 @@ export default function Mailbox({ imageNumber = 1 }) {
                     const newTime = prevTime - 1;
 
                     if (newTime <= 0 && !hasFinished) {
+                        setTimeout(() => {
+                            if (boxRef.current) {
+                                boxRef.current.playAnimation("OPEN");
+                            }
+                        }, 3000);
                         hasFinished = true;
                         clearInterval(interval);
                         setCountdownInterval(null);
                         handleScheduledPostcardSent();
+                        resetForm();
                         return 0;
                     }
                     return newTime;
@@ -177,20 +207,76 @@ export default function Mailbox({ imageNumber = 1 }) {
             }, 1000);
             setCountdownInterval(interval);
         },
-        [countdownInterval, toggleFlag, handleScheduledPostcardSent]
+        [countdownInterval, toggleFlag, handleScheduledPostcardSent, resetForm]
     );
+
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: submitPostcard,
+        onSuccess: (res) => {
+            setSubmissionStatus(STATUSES.submitted);
+            queryClient.invalidateQueries({ queryKey: ["postcards"] });
+            setResendEmailId(res.emailId);
+        },
+        onError: (error) => {
+            console.error("Error creating postcard:", error);
+            setSubmissionStatus(STATUSES.error);
+        },
+    });
+
+    const mutationWithAttachment = useMutation({
+        mutationFn: submitPostcardWithAttachment,
+        onSuccess: () => {
+            setSubmissionStatus(STATUSES.submitted);
+            resetForm();
+            queryClient.invalidateQueries({ queryKey: ["postcards"] });
+            cancelSendEmail({ resendEmailId: resendEmailId }).finally(() => {
+                setResendEmailId(null);
+            });
+        },
+        onError: (error) => {
+            console.error("Error creating postcard:", error);
+            setSubmissionStatus(STATUSES.error);
+        },
+    });
 
     const handleSubmitFormAdditionalActions = useCallback(() => {
         setInserted(true);
         if (boxRef.current) {
-            boxRef.current.playAnimation("CLOSE");
+            setTimeout(() => {
+                boxRef.current.playAnimation("CLOSE");
+            }, 500);
 
             // Wait for CLOSE animation to finish before raising flag
             setTimeout(() => {
                 startCountdown(10);
-            }, 1000);
+            }, 1500);
         }
     }, [startCountdown]);
+
+    const handleSubmitPostcard = useCallback(
+        (e) => {
+            e.preventDefault();
+            const postcardData = {
+                name: nameValue,
+                location: locationValue,
+                message: messageValue,
+                imageUrl: `${
+                    import.meta.env.VITE_FRONTENDURL
+                }/${imageNumber}.jpg`,
+            };
+            handleSubmitFormAdditionalActions();
+            mutation.mutate(postcardData);
+        },
+        [
+            imageNumber,
+            handleSubmitFormAdditionalActions,
+            mutation,
+            locationValue,
+            messageValue,
+            nameValue,
+        ]
+    );
 
     useEffect(() => {
         if (animations.length > 0) {
@@ -207,14 +293,61 @@ export default function Mailbox({ imageNumber = 1 }) {
     }, [countdownInterval]);
 
     const cancelSend = () => {
-        setCountdownRemaining(0);
-        setShowCountdown(false);
-        setInserted(false);
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            setCountdownInterval(null);
+        if (resendEmailId) {
+            cancelSendEmail({ resendEmailId })
+                .then(() => {
+                    if (boxRef.current) {
+                        boxRef.current.playAnimation("OPEN");
+                    }
+                    setCountdownRemaining(0);
+                    setShowCountdown(false);
+                    setTimeout(() => {
+                        setInserted(false);
+                    }, 800);
+                    if (countdownInterval) {
+                        clearInterval(countdownInterval);
+                        setCountdownInterval(null);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error cancelling email:", error);
+                });
+        } else {
+            console.error("No resend email ID available to cancel");
         }
     };
+
+    const handleSendNow = useCallback(
+        (e) => {
+            e.preventDefault();
+            const postcardData = {
+                name: nameValue,
+                location: locationValue,
+                message: messageValue,
+                imageUrl: `${
+                    import.meta.env.VITE_FRONTENDURL
+                }/${imageNumber}.jpg`,
+            };
+            setCountdownRemaining(0);
+            setShowCountdown(false);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                setCountdownInterval(null);
+            }
+            mutationWithAttachment.mutate(postcardData);
+            resetForm();
+            setInserted(false);
+        },
+        [
+            nameValue,
+            locationValue,
+            messageValue,
+            imageNumber,
+            mutationWithAttachment,
+            resetForm,
+            countdownInterval,
+        ]
+    );
 
     return (
         <div className={styles.canvas}>
@@ -320,11 +453,18 @@ export default function Mailbox({ imageNumber = 1 }) {
                     >
                         <div className={styles.frontSide}>
                             <Suspense fallback={null}>
-                                <PostcardWithProvider
-                                    imageNumber={imageNumber}
-                                    playAnimations={
-                                        handleSubmitFormAdditionalActions
-                                    }
+                                <Postcard
+                                    nameValue={nameValue}
+                                    setNameValue={setNameValue}
+                                    locationValue={locationValue}
+                                    setLocationValue={setLocationValue}
+                                    messageValue={messageValue}
+                                    setMessageValue={setMessageValue}
+                                    submissionStatus={submissionStatus}
+                                    setSubmissionStatus={setSubmissionStatus}
+                                    handleSubmit={handleSubmitPostcard}
+                                    mutation={mutation}
+                                    statuses={STATUSES}
                                 />
                             </Suspense>
                             <FlipButton handleFlip={handleFlip} />
@@ -366,7 +506,12 @@ export default function Mailbox({ imageNumber = 1 }) {
                         <Countdown
                             countdownRemaining={countdownRemaining}
                             cancelSend={cancelSend}
-                            resendResponse={"200"}
+                            sendNow={handleSendNow}
+                            resendResponse={
+                                submissionStatus === STATUSES.submitted
+                                    ? "200"
+                                    : null
+                            }
                             setShowCountdown={setShowCountdown}
                         />
                     </Html>
