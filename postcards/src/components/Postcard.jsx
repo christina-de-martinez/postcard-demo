@@ -77,11 +77,11 @@ function Postcard({ imageNumber = 1, playAnimations }) {
         setMessageValue(value);
     };
 
-    const resetForm = () => {
+    const resetForm = useCallback(() => {
         setNameValue(defaultValues.name);
         setLocationValue(defaultValues.location);
         setMessageValue(defaultValues.message);
-    };
+    }, [defaultValues.name, defaultValues.location, defaultValues.message]);
 
     const handleSubmit = useCallback(
         (e) => {
@@ -99,8 +99,9 @@ function Postcard({ imageNumber = 1, playAnimations }) {
             };
             playAnimations();
             mutation.mutate(postcardData);
+            resetForm();
         },
-        [canSubmit, imageNumber, playAnimations, mutation]
+        [canSubmit, imageNumber, playAnimations, mutation, resetForm]
     );
 
     useEffect(() => {
@@ -174,7 +175,16 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                             </div>
                         </div>
                         <div className={styles.buttonContainer}>
-                            <button type="submit" disabled={!canSubmit}>
+                            <button
+                                type="submit"
+                                disabled={!canSubmit || mutation.isPending}
+                                style={{
+                                    cursor:
+                                        !canSubmit || mutation.isPending
+                                            ? "not-allowed"
+                                            : "pointer",
+                                }}
+                            >
                                 Send
                             </button>
                         </div>
