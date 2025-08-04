@@ -154,7 +154,9 @@ export default function Mailbox({ imageNumber = 1 }) {
     // todo: do this when an email has been sent, not just at the end of countdown
     const handleScheduledPostcardSent = useCallback(() => {
         toggleFlag();
-        // Removed console.log for performance
+        setTimeout(() => {
+            setInserted(false);
+        }, 2000);
     }, [toggleFlag]);
 
     const startCountdown = useCallback(

@@ -99,6 +99,7 @@ function Postcard({ imageNumber = 1, playAnimations }) {
             };
             playAnimations();
             mutation.mutate(postcardData);
+            resetForm();
         },
         [canSubmit, imageNumber, playAnimations, mutation]
     );
