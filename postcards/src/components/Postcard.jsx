@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { submitPostcard } from "../services/api";
 import styles from "./Postcard.module.css";
@@ -16,7 +16,6 @@ function Postcard({ imageNumber = 1, playAnimations }) {
     const mutation = useMutation({
         mutationFn: submitPostcard,
         onSuccess: () => {
-            console.log("Postcard created successfully");
             setSubmissionStatus(STATUSES.submitted);
             resetForm();
             queryClient.invalidateQueries({ queryKey: ["postcards"] });
@@ -84,25 +83,25 @@ function Postcard({ imageNumber = 1, playAnimations }) {
         setMessageValue(defaultValues.message);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!canSubmit) {
-            console.error(
-                "Validation error: Please fill out all fields correctly."
-            );
-            return;
-        }
+    const handleSubmit = useCallback(
+        (e) => {
+            e.preventDefault();
+            if (!canSubmit) {
+                return;
+            }
 
-        const formData = new FormData(e.target);
-        const postcardData = {
-            name: formData.get("name") || "Your name",
-            location: formData.get("location") || "Your location",
-            message: formData.get("message") || "Your message",
-            imageUrl: `https://postcard-demo.vercel.app/${imageNumber}.jpg`,
-        };
-        playAnimations();
-        mutation.mutate(postcardData);
-    };
+            const formData = new FormData(e.target);
+            const postcardData = {
+                name: formData.get("name") || "Your name",
+                location: formData.get("location") || "Your location",
+                message: formData.get("message") || "Your message",
+                imageUrl: `https://postcard-demo.vercel.app/${imageNumber}.jpg`,
+            };
+            playAnimations();
+            mutation.mutate(postcardData);
+        },
+        [canSubmit, imageNumber, playAnimations, mutation]
+    );
 
     useEffect(() => {
         if (submissionStatus) {

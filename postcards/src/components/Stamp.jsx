@@ -1,7 +1,8 @@
+import { memo } from "react";
 import SVGIcon from "../assets/resend-icon-white.svg?react";
 import styles from "./Stamp.module.css";
 
-function Stamp({ smaller = false }) {
+const Stamp = memo(function Stamp({ smaller = false }) {
     return (
         <div className={`${styles.stamp} ${smaller ? styles.smaller : ""}`}>
             <div className={styles.stampImage}>
@@ -9,6 +10,6 @@ function Stamp({ smaller = false }) {
             </div>
         </div>
     );
-}
+});
 
 export default Stamp;

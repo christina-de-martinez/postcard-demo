@@ -1,4 +1,11 @@
-import { useRef, useState, useEffect, Suspense } from "react";
+import {
+    useRef,
+    useState,
+    useEffect,
+    Suspense,
+    useCallback,
+    useMemo,
+} from "react";
 import { Canvas } from "@react-three/fiber";
 import {
     Html,
@@ -36,7 +43,7 @@ export default function Mailbox({ imageNumber = 1 }) {
     );
     const [countdownInterval, setCountdownInterval] = useState(null);
 
-    const getResponsiveDimensions = () => {
+    const getResponsiveDimensions = useCallback(() => {
         if (windowWidth <= minWindowWidthFor3D) {
             return null;
         } else if (windowWidth <= 599) {
@@ -73,9 +80,12 @@ export default function Mailbox({ imageNumber = 1 }) {
                 },
             };
         }
-    };
+    }, [windowWidth]);
 
-    const responsiveDimensions = getResponsiveDimensions();
+    const responsiveDimensions = useMemo(
+        () => getResponsiveDimensions(),
+        [getResponsiveDimensions]
+    );
 
     useEffect(() => {
         let resizeTimeout;
@@ -84,7 +94,9 @@ export default function Mailbox({ imageNumber = 1 }) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 setWindowWidth(window.innerWidth);
-                window.location.reload();
+                // todo: when resizing, ensure that the postcard is in the right position
+                // also on mobile, if the window is resized to cross the threshold between 3D and 2D,
+                // reload the page to switch between 3D and 2D
             }, 150);
         };
 
@@ -107,9 +119,9 @@ export default function Mailbox({ imageNumber = 1 }) {
         config: { mass: 1, tension: 120, friction: 18 },
     });
 
-    const handleFlip = () => {
+    const handleFlip = useCallback(() => {
         setFlipped(!flipped);
-    };
+    }, [flipped]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -121,27 +133,58 @@ export default function Mailbox({ imageNumber = 1 }) {
                 } catch (error) {
                     console.error("Error getting animations:", error);
                 }
-            } else {
-                console.log("boxRef.current is null");
             }
         }, 500);
 
         return () => clearTimeout(timer);
     }, []);
 
-    const playAnimation = (animationName) => {
+    const playAnimation = useCallback((animationName) => {
         if (boxRef.current) {
             boxRef.current.playAnimation(animationName);
         }
-    };
+    }, []);
 
-    const toggleFlag = () => {
+    const toggleFlag = useCallback(() => {
         if (boxRef.current) {
             boxRef.current.toggleFlag();
         }
-    };
+    }, []);
 
-    const handleSubmitFormAdditionalActions = () => {
+    // todo: do this when an email has been sent, not just at the end of countdown
+    const handleScheduledPostcardSent = useCallback(() => {
+        toggleFlag();
+        // Removed console.log for performance
+    }, [toggleFlag]);
+
+    const startCountdown = useCallback(
+        (seconds) => {
+            toggleFlag();
+            setCountdownRemaining(seconds);
+            setShowCountdown(true);
+            if (countdownInterval) clearInterval(countdownInterval);
+            let hasFinished = false;
+
+            const interval = setInterval(() => {
+                setCountdownRemaining((prevTime) => {
+                    const newTime = prevTime - 1;
+
+                    if (newTime <= 0 && !hasFinished) {
+                        hasFinished = true;
+                        clearInterval(interval);
+                        setCountdownInterval(null);
+                        handleScheduledPostcardSent();
+                        return 0;
+                    }
+                    return newTime;
+                });
+            }, 1000);
+            setCountdownInterval(interval);
+        },
+        [countdownInterval, toggleFlag, handleScheduledPostcardSent]
+    );
+
+    const handleSubmitFormAdditionalActions = useCallback(() => {
         setInserted(true);
         if (boxRef.current) {
             boxRef.current.playAnimation("CLOSE");
@@ -151,40 +194,13 @@ export default function Mailbox({ imageNumber = 1 }) {
                 startCountdown(10);
             }, 1500);
         }
-    };
-
-    // todo: do this when an email has been sent, not just at the end of countdown
-    const handleScheduledPostcardSent = () => {
-        toggleFlag();
-        console.log("Scheduled postcard sent");
-    };
+    }, [startCountdown]);
 
     useEffect(() => {
-        playAnimation("OPEN");
-    }, [animations]);
-
-    const forceCameraUpdate = () => {
-        if (controlsRef.current) {
-            const controls = controlsRef.current;
-            const currentPosition = controls.object.position.clone();
-            controls.object.position.set(
-                currentPosition.x,
-                currentPosition.y,
-                currentPosition.z + 0.01
-            );
-            controls.update();
+        if (animations.length > 0) {
+            playAnimation("OPEN");
         }
-    };
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (windowWidth >= minWindowWidthFor3D) {
-                forceCameraUpdate();
-            }
-        }, 600);
-
-        return () => clearTimeout(timer);
-    }, [windowWidth]);
+    }, [animations, playAnimation]);
 
     useEffect(() => {
         return () => {
@@ -193,30 +209,6 @@ export default function Mailbox({ imageNumber = 1 }) {
             }
         };
     }, [countdownInterval]);
-
-    const startCountdown = (seconds) => {
-        toggleFlag();
-        setCountdownRemaining(seconds);
-        setShowCountdown(true);
-        if (countdownInterval) clearInterval(countdownInterval);
-        let hasFinished = false;
-
-        const interval = setInterval(() => {
-            setCountdownRemaining((prevTime) => {
-                const newTime = prevTime - 1;
-
-                if (newTime <= 0 && !hasFinished) {
-                    hasFinished = true;
-                    clearInterval(interval);
-                    setCountdownInterval(null);
-                    handleScheduledPostcardSent();
-                    return 0;
-                }
-                return newTime;
-            });
-        }, 1000);
-        setCountdownInterval(interval);
-    };
 
     const cancelSend = () => {
         setCountdownRemaining(0);
@@ -236,7 +228,11 @@ export default function Mailbox({ imageNumber = 1 }) {
                 }}
                 gl={{
                     toneMapping: ACESFilmicToneMapping,
+                    antialias: false,
+                    powerPreference: "high-performance",
                 }}
+                dpr={[1, 2]}
+                performance={{ min: 0.8 }}
             >
                 <OrbitControls
                     ref={controlsRef}
@@ -251,6 +247,8 @@ export default function Mailbox({ imageNumber = 1 }) {
                     intensity={1.2}
                     color="#ffe9c5"
                     castShadow
+                    shadow-mapSize-width={512}
+                    shadow-mapSize-height={512}
                 />
                 <directionalLight
                     position={[-5, 5, 3]}
@@ -271,25 +269,25 @@ export default function Mailbox({ imageNumber = 1 }) {
                     frustum={3.75}
                     size={0.005}
                     near={9.5}
-                    samples={17}
-                    rings={11}
+                    samples={8}
+                    rings={6}
                 />
                 <ContactShadows
                     position={[0, -1, 0]}
-                    opacity={0.5}
-                    width={10}
-                    height={10}
-                    blur={2.5}
-                    far={5}
+                    opacity={0.3}
+                    width={8}
+                    height={8}
+                    blur={1.5}
+                    far={4}
                 />
-                <EffectComposer>
+                <EffectComposer multisampling={0}>
                     <Bloom
-                        luminanceThreshold={0.2}
-                        luminanceSmoothing={0.9}
-                        height={300}
+                        luminanceThreshold={0.3}
+                        luminanceSmoothing={0.8}
+                        height={200}
                     />
-                    <Noise opacity={0.02} />
-                    <Vignette eskil={false} offset={0.2} darkness={0.5} />
+                    <Noise opacity={0.01} />
+                    <Vignette eskil={false} offset={0.2} darkness={0.3} />
                 </EffectComposer>
                 <Box ref={boxRef} position={[0, 0, 0]} />
                 <animated.group position={position} rotation={rotation}>
@@ -377,31 +375,47 @@ export default function Mailbox({ imageNumber = 1 }) {
                     </Html>
                 )}
             </Canvas>
-            <div
-                style={{
-                    position: "absolute",
-                    top: "20px",
-                    left: "20px",
-                    zIndex: 1000,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    backgroundColor: "#333",
-                    padding: "10px",
-                    borderRadius: "5px",
-                }}
-            >
-                <div style={{ color: "white", fontSize: "12px" }}>
-                    Animations found: {animations.length}
-                </div>
+            {import.meta.env.MODE === "development" && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "20px",
+                        left: "20px",
+                        zIndex: 1000,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        backgroundColor: "#333",
+                        padding: "10px",
+                        borderRadius: "5px",
+                    }}
+                >
+                    <div style={{ color: "white", fontSize: "12px" }}>
+                        Animations found: {animations.length}
+                    </div>
 
-                {animations.map((animationName) => (
+                    {animations.map((animationName) => (
+                        <button
+                            key={animationName}
+                            onClick={() => playAnimation(animationName)}
+                            style={{
+                                padding: "10px 15px",
+                                backgroundColor: "#007acc",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "5px",
+                                cursor: "pointer",
+                                fontSize: "14px",
+                            }}
+                        >
+                            Play {animationName}
+                        </button>
+                    ))}
                     <button
-                        key={animationName}
-                        onClick={() => playAnimation(animationName)}
+                        onClick={() => toggleFlag()}
                         style={{
                             padding: "10px 15px",
-                            backgroundColor: "#007acc",
+                            backgroundColor: "#28a745",
                             color: "white",
                             border: "none",
                             borderRadius: "5px",
@@ -409,52 +423,38 @@ export default function Mailbox({ imageNumber = 1 }) {
                             fontSize: "14px",
                         }}
                     >
-                        Play {animationName}
+                        Toggle flag
                     </button>
-                ))}
-                <button
-                    onClick={() => toggleFlag()}
-                    style={{
-                        padding: "10px 15px",
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                    }}
-                >
-                    Toggle flag
-                </button>
-                <button
-                    onClick={() => setInserted((v) => !v)}
-                    style={{
-                        padding: "10px 15px",
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                    }}
-                >
-                    Animate into mailbox
-                </button>
-                <button
-                    onClick={() => startCountdown(15)}
-                    style={{
-                        padding: "10px 15px",
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                    }}
-                >
-                    Countdown from 15
-                </button>
-            </div>
+                    <button
+                        onClick={() => setInserted((v) => !v)}
+                        style={{
+                            padding: "10px 15px",
+                            backgroundColor: "#28a745",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                        }}
+                    >
+                        Animate into mailbox
+                    </button>
+                    <button
+                        onClick={() => startCountdown(15)}
+                        style={{
+                            padding: "10px 15px",
+                            backgroundColor: "#28a745",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                        }}
+                    >
+                        Countdown from 15
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
