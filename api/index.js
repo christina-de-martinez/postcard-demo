@@ -13,6 +13,7 @@ app.use(
             "http://localhost:5173",
             "https://postcard-demo-6mg5.vercel.app",
             "https://postcard-demo.vercel.app",
+            "https://snailmail.dev",
         ],
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
