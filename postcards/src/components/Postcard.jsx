@@ -95,7 +95,7 @@ function Postcard({ imageNumber = 1, playAnimations }) {
                 name: formData.get("name") || "Your name",
                 location: formData.get("location") || "Your location",
                 message: formData.get("message") || "Your message",
-                imageUrl: `https://postcard-demo.vercel.app/${imageNumber}.jpg`,
+                imageUrl: `${import.meta.env.VITE_BASEURL}/${imageNumber}.jpg`,
             };
             playAnimations();
             mutation.mutate(postcardData);

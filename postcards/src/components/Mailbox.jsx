@@ -94,9 +94,6 @@ export default function Mailbox({ imageNumber = 1 }) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 setWindowWidth(window.innerWidth);
-                // todo: when resizing, ensure that the postcard is in the right position
-                // also on mobile, if the window is resized to cross the threshold between 3D and 2D,
-                // reload the page to switch between 3D and 2D
             }, 150);
         };
 
@@ -107,8 +104,6 @@ export default function Mailbox({ imageNumber = 1 }) {
         };
     }, []);
 
-    // todo: animation for dropping in the postcard from above when form is submitted or upon initial load
-    // this should happen after the open animation
     const { position, rotation } = useSpring({
         position: inserted
             ? responsiveDimensions.springPosition.inserted
@@ -151,7 +146,6 @@ export default function Mailbox({ imageNumber = 1 }) {
         }
     }, []);
 
-    // todo: do this when an email has been sent, not just at the end of countdown
     const handleScheduledPostcardSent = useCallback(() => {
         toggleFlag();
         setTimeout(() => {
@@ -194,7 +188,7 @@ export default function Mailbox({ imageNumber = 1 }) {
             // Wait for CLOSE animation to finish before raising flag
             setTimeout(() => {
                 startCountdown(10);
-            }, 1500);
+            }, 1000);
         }
     }, [startCountdown]);
 
