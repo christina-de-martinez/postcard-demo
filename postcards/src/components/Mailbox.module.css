@@ -1,7 +1,7 @@
 .canvas {
     width: 100vw;
     height: 75vh;
-    background-color: #101010;
+    background-color: var(--resend-canvas-background-color);
     margin: 0 auto;
 }
 
@@ -24,7 +24,7 @@
     -webkit-backface-visibility: hidden;
     transform-style: preserve-3d;
     border-radius: 6px;
-    background-color: #101010;
+    background-color: var(--resend-canvas-background-color);
 }
 
 .backSide {
@@ -37,7 +37,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 6px;
-    background-color: #101010;
+    background-color: var(--resend-canvas-background-color);
 }
 
 .backSide img {
