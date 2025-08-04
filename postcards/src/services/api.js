@@ -10,9 +10,52 @@ export const fetchPostcards = async () => {
     return response.json();
 };
 
+export const cancelSendEmail = async ({ resendEmailId }) => {
+    const response = await fetch(
+        `${import.meta.env.VITE_BASEURL}/api/v1/postcards/cancelEmail`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: resendEmailId }),
+        }
+    )
+        .then((response) => {
+            if (response.status !== 200) {
+                throw new Error("Failed to cancel email");
+            }
+            return response.json();
+        })
+        .catch((error) => {
+            console.error("Error cancelling email:", error);
+        });
+
+    return await response;
+};
+
 export const submitPostcard = async (postcardData) => {
     const response = await fetch(
         `${import.meta.env.VITE_BASEURL}/api/v1/postcards/create`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postcardData),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to submit postcard");
+    }
+
+    return response.json();
+};
+
+export const submitPostcardWithAttachment = async (postcardData) => {
+    const response = await fetch(
+        `${import.meta.env.VITE_BASEURL}/api/v1/postcards/createWithAttachment`,
         {
             method: "POST",
             headers: {
