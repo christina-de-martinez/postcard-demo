@@ -1,6 +1,8 @@
 const Postcards = require("../models/postcards");
 const router = require("express").Router();
 const mongoose = require("mongoose");
+const { Resend } = require("resend");
+const { buildEmail } = require("../notificationEmail");
 
 router.get("/", async (req, res) => {
     try {
@@ -15,9 +17,25 @@ router.get("/", async (req, res) => {
             .limit(50);
         res.status(200).json(postcards);
     } catch (err) {
-        console.log("error:", err);
         res.status(500).json({
             error: err.message || "Failed to fetch postcards",
+        });
+    }
+});
+
+router.post("/cancelEmail", async (req, res) => {
+    try {
+        if (!req.body.id) {
+            return res.status(400).json({ error: "Email ID is required" });
+        }
+
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const response = await resend.emails.cancel(req.body.id);
+
+        res.status(200).json(response);
+    } catch (err) {
+        res.status(500).json({
+            error: err.message || "Failed to cancel email",
         });
     }
 });
@@ -30,8 +48,83 @@ router.post("/create", async (req, res) => {
             .save()
             .catch((err) => console.log(err));
 
-        res.status(200).json(response);
+        const resend = new Resend(process.env.RESEND_API_KEY);
+
+        const { plainTextEmail, htmlEmail } = buildEmail({
+            userName: req.body.name ?? "Someone",
+            message: req.body.message ?? "Message not found",
+            location: req.body.location ?? "Somewhere",
+        });
+
+        const emailResponse = await resend.emails.send(
+            {
+                from: "Snailmail.dev <postman@postcards.snailmail.dev>",
+                to: "hi@christinacodes.dev",
+                subject: `New postcard from ${req.body.name ?? "someone"}`,
+                html: htmlEmail,
+                plainText: plainTextEmail,
+                scheduledAt: "in 10 sec",
+            },
+            {
+                idempotencyKey: `postcard-created/${req.body.name}/${req.body.location}/${req.body.imageUrl}`,
+            }
+        );
+
+        console.log("Email sent with ID:", emailResponse);
+
+        res.status(200).json({
+            ...response.toObject(),
+            emailId: emailResponse.data?.id,
+        });
     } catch (err) {
+        console.error("Create postcard error:", err);
+        res.status(500).json(err);
+    }
+});
+
+router.post("/createWithAttachment", async (req, res) => {
+    try {
+        const newPostcard = new Postcards(req.body);
+
+        const response = await newPostcard
+            .save()
+            .catch((err) => console.log(err));
+
+        const resend = new Resend(process.env.RESEND_API_KEY);
+
+        const { plainTextEmail, htmlEmail } = buildEmail({
+            userName: req.body.name ?? "Someone",
+            message: req.body.message ?? "Message not found",
+            location: req.body.location ?? "Somewhere",
+        });
+
+        const emailResponse = await resend.emails.send(
+            {
+                from: "Snailmail.dev <postman@postcards.snailmail.dev>",
+                to: "hi@christinacodes.dev",
+                subject: `New postcard from ${req.body.name ?? "someone"}`,
+                html: htmlEmail,
+                plainText: plainTextEmail,
+                attachments: [
+                    {
+                        path: req.body.imageUrl,
+                        filename: "postcard.jpg",
+                    },
+                ],
+            },
+            {
+                idempotencyKey: `postcard-created/${req.body.name}/${req.body.location}/${req.body.imageUrl}`,
+            }
+        );
+
+        console.log("Email with attachment sent with ID:", emailResponse);
+
+        res.status(200).json({
+            ...response.toObject(),
+            emailId: emailResponse.data?.id,
+        });
+    } catch (err) {
+        console.error("Create postcard with attachment error:", err);
         res.status(500).json(err);
     }
 });
