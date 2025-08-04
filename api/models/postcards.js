@@ -4,24 +4,27 @@ const PostcardsSchema = new mongoose.Schema(
     {
         name: {
             type: String,
+            min: 1,
+            max: 22,
             default: "Someone",
             required: true,
         },
         location: {
             type: String,
-            max: 20,
+            min: 2,
+            max: 22,
             default: "Somewhere",
             required: true,
         },
         message: {
             type: String,
-            max: 500,
+            max: 320,
             default: "Default message",
             required: true,
         },
         imageUrl: {
             type: String,
-            max: 500,
+            max: 50,
             default: "https://snailmail.dev/1.jpg",
             required: true,
         },
