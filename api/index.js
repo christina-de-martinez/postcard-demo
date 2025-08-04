@@ -21,14 +21,12 @@ app.use(
 );
 dotenv.config();
 
-const PORT = process.env.PORT || 8008;
-
-// middleware
 app.use(express.json());
 app.use(helmet());
 
 let isConnected = false;
 
+// ensure there's a connection before proceeding
 const connectDB = async () => {
     if (isConnected) {
         console.log("Using existing database connection");
@@ -47,7 +45,6 @@ const connectDB = async () => {
     }
 };
 
-// Middleware to ensure database connection before handling requests
 app.use(async (req, res, next) => {
     try {
         await connectDB();
@@ -61,11 +58,9 @@ app.use(async (req, res, next) => {
     }
 });
 
-// api routes
 app.get("/health", (req, res) => {
     res.status(200).json({ status: "OK", message: "Server is running" });
 });
-
 app.use("/api/v1/postcards", postcardsRoute);
 
 // For local development - only start server if this file is run directly
@@ -78,5 +73,4 @@ if (require.main === module) {
     });
 }
 
-// Export the app for Vercel
 module.exports = app;

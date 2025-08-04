@@ -22,7 +22,7 @@ const PostcardsSchema = new mongoose.Schema(
         imageUrl: {
             type: String,
             max: 500,
-            default: "https://placehold.co/500x300",
+            default: "https://postcard-demo.vercel.app/1.jpg",
             required: true,
         },
     },

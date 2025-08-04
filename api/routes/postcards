@@ -8,7 +8,11 @@ router.get("/", async (req, res) => {
             return res.status(500).json({ error: "Database not connected" });
         }
 
-        const postcards = await Postcards.find();
+        const postcards = await Postcards.find()
+            .sort({
+                createdAt: -1,
+            })
+            .limit(50);
         res.status(200).json(postcards);
     } catch (err) {
         console.log("error:", err);
