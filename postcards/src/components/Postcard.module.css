@@ -4,18 +4,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #141414;
+    background-color: var(--resend-secondary-background-color);
     height: 100%;
 
     .errorMessage {
-        color: #fe636a;
+        color: var(--resend-error-color);
         font-size: 24px;
         height: 24px;
         font-weight: normal;
     }
     .errorMessageTextArea {
         font-weight: normal;
-        color: #fe636a;
+        color: var(--resend-error-color);
         font-size: 18px;
         margin-top: 5px;
         position: absolute;
@@ -23,7 +23,7 @@
         left: 30px;
     }
     .warning {
-        color: #feca15;
+        color: var(--resend-warning-color);
     }
 
     form {
@@ -55,7 +55,7 @@
         aspect-ratio: 5 / 3;
         padding: 20px;
         border-radius: 6px;
-        background-color: #141414;
+        background-color: var(--resend-secondary-background-color);
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -103,7 +103,7 @@
                 background-color: transparent;
                 width: 100%;
                 font-size: 30px;
-                border-bottom: 1px dotted #f1f1f1;
+                border-bottom: 1px dotted var(--resend-white-color);
             }
 
             .buttonContainer {

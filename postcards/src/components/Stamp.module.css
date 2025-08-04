@@ -22,7 +22,7 @@
         height: 86%;
         object-fit: cover;
         border-radius: 2px;
-        background-color: #000;
+        background-color: var(--resend-main-background-color);
         display: flex;
         align-items: center;
         justify-content: center;
