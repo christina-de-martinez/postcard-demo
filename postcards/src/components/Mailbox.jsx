@@ -72,7 +72,7 @@ export default function Mailbox({ imageNumber = 1 }) {
             return {
                 boxGeometry: [0.2, 0.15, 0.0025],
                 frontPosition: [-0.16, 0.08, 0.0025],
-                backPosition: [0.13, 0.08, -0.0025],
+                backPosition: [0.16, 0.08, -0.0025],
                 scale: 0.25,
                 springPosition: {
                     inserted: [-0.055, 1.52, 0],
@@ -215,6 +215,7 @@ export default function Mailbox({ imageNumber = 1 }) {
     const cancelSend = () => {
         setCountdownRemaining(0);
         setShowCountdown(false);
+        setInserted(false);
         if (countdownInterval) {
             clearInterval(countdownInterval);
             setCountdownInterval(null);
