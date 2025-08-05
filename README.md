@@ -1,3 +1,3 @@
 # Postcard Demo
 
-This is my take-home assignment for Resend.
+Send me digital postcards at [snailmail.dev](snailmail.dev)!
