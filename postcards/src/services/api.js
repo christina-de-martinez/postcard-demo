@@ -11,27 +11,29 @@ export const fetchPostcards = async () => {
 };
 
 export const cancelSendEmail = async ({ resendEmailId }) => {
-    const response = await fetch(
-        `${import.meta.env.VITE_BASEURL}/api/v1/postcards/cancelEmail`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: resendEmailId }),
-        }
-    )
-        .then((response) => {
-            if (response.status !== 200) {
-                throw new Error("Failed to cancel email");
+    try {
+        const response = await fetch(
+            `${import.meta.env.VITE_BASEURL}/api/v1/postcards/cancelEmail`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: resendEmailId }),
             }
-            return response.json();
-        })
-        .catch((error) => {
-            console.error("Error cancelling email:", error);
-        });
+        );
 
-    return await response;
+        if (!response.ok) {
+            throw new Error(
+                `Failed to cancel email: ${response.status} ${response.statusText}`
+            );
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error cancelling email:", error);
+        throw error;
+    }
 };
 
 export const submitPostcard = async (postcardData) => {
@@ -53,9 +55,9 @@ export const submitPostcard = async (postcardData) => {
     return response.json();
 };
 
-export const submitPostcardWithAttachment = async (postcardData) => {
+export const sendEmailWithAttachment = async (postcardData) => {
     const response = await fetch(
-        `${import.meta.env.VITE_BASEURL}/api/v1/postcards/createWithAttachment`,
+        `${import.meta.env.VITE_BASEURL}/api/v1/postcards/sendWithAttachment`,
         {
             method: "POST",
             headers: {
@@ -66,7 +68,7 @@ export const submitPostcardWithAttachment = async (postcardData) => {
     );
 
     if (!response.ok) {
-        throw new Error("Failed to submit postcard");
+        throw new Error("Failed to send email with attachment");
     }
 
     return response.json();
