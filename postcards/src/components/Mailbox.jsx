@@ -29,6 +29,7 @@ import { Box } from "./Box";
 import Postcard from "./Postcard";
 import FlipButton from "./FlipButton";
 import Countdown from "./Countdown";
+import PostcardLoading from "./PostcardLoading";
 import { cancelSendEmail } from "../services/api";
 import styles from "./Mailbox.module.css";
 
@@ -452,7 +453,7 @@ export default function Mailbox({ imageNumber = 1 }) {
                         }
                     >
                         <div className={styles.frontSide}>
-                            <Suspense fallback={null}>
+                            <Suspense fallback={<PostcardLoading />}>
                                 <Postcard
                                     nameValue={nameValue}
                                     setNameValue={setNameValue}
@@ -466,8 +467,8 @@ export default function Mailbox({ imageNumber = 1 }) {
                                     mutation={mutation}
                                     statuses={STATUSES}
                                 />
+                                <FlipButton handleFlip={handleFlip} />
                             </Suspense>
-                            <FlipButton handleFlip={handleFlip} />
                         </div>
                     </Html>
                     <Html
@@ -493,11 +494,13 @@ export default function Mailbox({ imageNumber = 1 }) {
                         }
                     >
                         <div className={styles.backSide}>
-                            <img
-                                src={`/${imageNumber}.jpg`}
-                                alt="Postcard back"
-                            />
-                            <FlipButton handleFlip={handleFlip} />
+                            <Suspense fallback={<PostcardLoading />}>
+                                <img
+                                    src={`/${imageNumber}.jpg`}
+                                    alt="Postcard back"
+                                />
+                                <FlipButton handleFlip={handleFlip} />
+                            </Suspense>
                         </div>
                     </Html>
                 </animated.group>
