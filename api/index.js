@@ -14,6 +14,7 @@ app.use(
             "https://postcard-demo-6mg5.vercel.app",
             "https://postcard-demo.vercel.app",
             "https://snailmail.dev",
+            "https://www.snailmail.dev",
         ],
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
