@@ -56,7 +56,7 @@ const sendResendEmail = async (req) => {
             to: "hi@christinacodes.dev",
             subject: `New postcard from ${req.body.name ?? "someone"}`,
             html: htmlEmail,
-            plainText: plainTextEmail,
+            text: plainTextEmail,
         },
         options: {
             idempotencyKey: `postcard-${emailType}/${req.body.name}/${req.body.location}/${req.body.imageUrl}`,
