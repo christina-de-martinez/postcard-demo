@@ -24,7 +24,7 @@ import { useSpring } from "@react-spring/web";
 import { animated } from "@react-spring/three";
 import { DoubleSide, ACESFilmicToneMapping } from "three";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { submitPostcard, submitPostcardWithAttachment } from "../services/api";
+import { submitPostcard, sendEmailWithAttachment } from "../services/api";
 import { Box } from "./Box";
 import Postcard from "./Postcard";
 import FlipButton from "./FlipButton";
@@ -226,17 +226,13 @@ export default function Mailbox({ imageNumber = 1 }) {
     });
 
     const mutationWithAttachment = useMutation({
-        mutationFn: submitPostcardWithAttachment,
+        mutationFn: sendEmailWithAttachment,
         onSuccess: () => {
             setSubmissionStatus(STATUSES.submitted);
             resetForm();
-            queryClient.invalidateQueries({ queryKey: ["postcards"] });
-            cancelSendEmail({ resendEmailId: resendEmailId }).finally(() => {
-                setResendEmailId(null);
-            });
         },
         onError: (error) => {
-            console.error("Error creating postcard:", error);
+            console.error("Error sending email with attachment:", error);
             setSubmissionStatus(STATUSES.error);
         },
     });
@@ -321,6 +317,12 @@ export default function Mailbox({ imageNumber = 1 }) {
     const handleSendNow = useCallback(
         (e) => {
             e.preventDefault();
+            setCountdownRemaining(0);
+            setShowCountdown(false);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                setCountdownInterval(null);
+            }
             const postcardData = {
                 name: nameValue,
                 location: locationValue,
@@ -329,15 +331,28 @@ export default function Mailbox({ imageNumber = 1 }) {
                     import.meta.env.VITE_FRONTENDURL
                 }/${imageNumber}.jpg`,
             };
-            setCountdownRemaining(0);
-            setShowCountdown(false);
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-                setCountdownInterval(null);
+            if (resendEmailId) {
+                cancelSendEmail({ resendEmailId })
+                    .then(() => {
+                        mutationWithAttachment.mutate(postcardData);
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Error cancelling scheduled email:",
+                            error
+                        );
+                    })
+                    .finally(() => {
+                        setResendEmailId(null);
+                        resetForm();
+                        setInserted(false);
+                    });
+            } else {
+                console.warn("No scheduled email ID to cancel");
+                mutationWithAttachment.mutate(postcardData);
+                resetForm();
+                setInserted(false);
             }
-            mutationWithAttachment.mutate(postcardData);
-            resetForm();
-            setInserted(false);
         },
         [
             nameValue,
@@ -347,6 +362,7 @@ export default function Mailbox({ imageNumber = 1 }) {
             mutationWithAttachment,
             resetForm,
             countdownInterval,
+            resendEmailId,
         ]
     );
 

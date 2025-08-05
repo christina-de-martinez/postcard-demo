@@ -101,10 +101,8 @@ router.post("/create", async (req, res) => {
     }
 });
 
-router.post("/createWithAttachment", async (req, res) => {
+router.post("/sendWithAttachment", async (req, res) => {
     try {
-        await submitPostcard(req);
-
         const emailResponse = await sendResendEmail({
             ...req,
             schedule: false,
@@ -115,7 +113,7 @@ router.post("/createWithAttachment", async (req, res) => {
             emailId: emailResponse.data?.id,
         });
     } catch (err) {
-        console.error("Create postcard with attachment error:", err);
+        console.error("Send email with attachment error:", err);
         res.status(500).json(err);
     }
 });
