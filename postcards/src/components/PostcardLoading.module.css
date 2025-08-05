@@ -1,0 +1,13 @@
+.postcardLoading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    font-size: 12rem;
+    background-color: transparent;
+    text-align: center;
+    opacity: 0.4;
+    color: #fff;
+}

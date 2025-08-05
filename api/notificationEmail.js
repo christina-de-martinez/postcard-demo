@@ -138,11 +138,6 @@ const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "ht
                 <tr>
                   <td>
                     <p
-                      style="font-size:14px;color:rgb(75,85,99);margin:0px;margin-bottom:8px;line-height:24px;margin-top:0px;margin-left:0px;margin-right:0px">
-                      <strong>Submitted:</strong>
-                      <!-- -->%TIMESTAMP%
-                    </p>
-                    <p
                       style="font-size:14px;color:rgb(75,85,99);margin:0px;line-height:24px;margin-top:0px;margin-bottom:0px;margin-left:0px;margin-right:0px">
                       <strong>App:</strong> snailmail.dev
                     </p>
@@ -194,8 +189,6 @@ From:
 Name: %NAME%
 Location: %LOCATION%
 
-Submitted: %TIMESTAMP%
-
 This notification was sent from snailmail.dev
 
 hi@christinacodes.dev • California, US • © 2025`;
@@ -205,24 +198,18 @@ const buildEmail = ({ userName, message, location }) => {
         "%NAME%": userName,
         "%MESSAGE%": message,
         "%LOCATION%": location,
-        "%TIMESTAMP%": new Date().toLocaleString("en-us", {
-            timeZone: "America/Los_Angeles",
-        }),
     };
 
     const plainTextEmail = plainText.replace(
-        /%NAME%|%MESSAGE%|%LOCATION%|%TIMESTAMP%/g,
+        /%NAME%|%MESSAGE%|%LOCATION%/g,
         (match) => {
             return replacements[match] || match;
         }
     );
 
-    const htmlEmail = html.replace(
-        /%NAME%|%MESSAGE%|%LOCATION%|%TIMESTAMP%/g,
-        (match) => {
-            return replacements[match] || match;
-        }
-    );
+    const htmlEmail = html.replace(/%NAME%|%MESSAGE%|%LOCATION%/g, (match) => {
+        return replacements[match] || match;
+    });
 
     return { plainTextEmail, htmlEmail };
 };
