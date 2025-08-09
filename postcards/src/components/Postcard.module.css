@@ -153,3 +153,11 @@
         font-size: 16px;
     }
 }
+
+@media (max-width: 385px) {
+    .postcard form,
+    .postcard .mainForm .rightSide input,
+    .postcard .mainForm .rightSide button {
+        font-size: 12px;
+    }
+}

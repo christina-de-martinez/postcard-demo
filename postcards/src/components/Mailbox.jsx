@@ -34,7 +34,6 @@ import { cancelSendEmail } from "../services/api";
 import styles from "./Mailbox.module.css";
 
 export default function Mailbox({ imageNumber = 1 }) {
-    const minWindowWidthFor3D = 500;
     const STATUSES = {
         submitted: "submitted",
         error: "error",
@@ -62,8 +61,61 @@ export default function Mailbox({ imageNumber = 1 }) {
     const [submissionStatus, setSubmissionStatus] = useState(null);
 
     const getResponsiveDimensions = useCallback(() => {
-        if (windowWidth <= minWindowWidthFor3D) {
-            return null;
+        if (windowWidth <= 330) {
+            return {
+                boxGeometry: [0, 0, 0.0025],
+                frontPosition: [-0.09, 0.08, 0.0025],
+                backPosition: [0.09, 0.08, -0.0025],
+                scale: 0.43,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [0.002, 1.55, 0.5],
+                },
+            };
+        } else if (windowWidth <= 360) {
+            return {
+                boxGeometry: [0, 0, 0.0025],
+                frontPosition: [-0.09, 0.08, 0.0025],
+                backPosition: [0.09, 0.08, -0.0025],
+                scale: 0.43,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [-0.005, 1.55, 0.5],
+                },
+            };
+        } else if (windowWidth <= 372) {
+            return {
+                boxGeometry: [0, 0, 0.0025],
+                frontPosition: [-0.09, 0.08, 0.0025],
+                backPosition: [0.09, 0.08, -0.0025],
+                scale: 0.43,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [-0.011, 1.55, 0.5],
+                },
+            };
+        } else if (windowWidth <= 400) {
+            return {
+                boxGeometry: [0, 0, 0.0025],
+                frontPosition: [-0.09, 0.08, 0.0025],
+                backPosition: [0.09, 0.08, -0.0025],
+                scale: 0.42,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [-0.01, 1.55, 0.5],
+                },
+            };
+        } else if (windowWidth <= 475) {
+            return {
+                boxGeometry: [0, 0, 0.0025],
+                frontPosition: [-0.09, 0.08, 0.0025],
+                backPosition: [0.09, 0.08, -0.0025],
+                scale: 0.39,
+                springPosition: {
+                    inserted: [-0.055, 1.52, 0],
+                    default: [-0.01, 1.55, 0.5],
+                },
+            };
         } else if (windowWidth <= 599) {
             return {
                 boxGeometry: [0, 0, 0.0025],
