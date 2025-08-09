@@ -22,16 +22,20 @@ function Postcard({
 
     const [canSubmit, setCanSubmit] = useState(false);
 
+    const nameValueLength = nameValue?.length ?? 0;
+    const locationValueLength = locationValue?.length ?? 0;
+    const messageValueLength = messageValue?.length ?? 0;
+
     useEffect(() => {
         setCanSubmit(
-            nameValue.length > minNameLength &&
-                nameValue.length < maxTextFieldLength &&
-                locationValue.length > minLocationLength &&
-                locationValue.length < maxTextFieldLength &&
-                messageValue.length > minTextAreaLength &&
-                messageValue.length < maxTextAreaLength
+            nameValueLength > minNameLength &&
+                nameValueLength < maxTextFieldLength &&
+                locationValueLength > minLocationLength &&
+                locationValueLength < maxTextFieldLength &&
+                messageValueLength > minTextAreaLength &&
+                messageValueLength < maxTextAreaLength
         );
-    }, [nameValue, locationValue, messageValue]);
+    }, [nameValueLength, locationValueLength, messageValueLength]);
 
     const handleSubmitPostcard = useCallback(
         (e) => {
@@ -94,18 +98,18 @@ function Postcard({
                         autoFocus
                     ></textarea>
                     <div className={styles.errorMessageTextArea}>
-                        {messageValue.length < minTextAreaLength && (
+                        {messageValue?.length < minTextAreaLength && (
                             <span>Please type a message</span>
                         )}
-                        {messageValue.length > maxTextAreaLength - 10 && (
+                        {messageValue?.length > maxTextAreaLength - 10 && (
                             <span
                                 className={
-                                    messageValue.length > maxTextAreaLength
+                                    messageValue?.length > maxTextAreaLength
                                         ? ""
                                         : styles.warning
                                 }
                             >
-                                {messageValue.length}/{maxTextAreaLength}
+                                {messageValue?.length}/{maxTextAreaLength}
                             </span>
                         )}
                     </div>

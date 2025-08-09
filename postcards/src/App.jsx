@@ -12,18 +12,10 @@ function App() {
         () => Math.floor(Math.random() * 8) + 1,
         []
     );
-    const minWindowWidthFor3D = 500;
 
     return (
         <QueryClientProvider client={queryClient}>
-            {window.innerWidth > minWindowWidthFor3D ? (
-                <Mailbox imageNumber={randomImageNumber} />
-            ) : (
-                <Postcard
-                    imageNumber={randomImageNumber}
-                    playAnimations={false}
-                />
-            )}
+            <Mailbox imageNumber={randomImageNumber} />
             <PostcardsGrid />
         </QueryClientProvider>
     );

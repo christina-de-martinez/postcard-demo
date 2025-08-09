@@ -19,3 +19,15 @@
     border-color: transparent;
     transform: scale(1.05);
 }
+
+@media (max-width: 690px) {
+    .flipButton {
+        bottom: 12px;
+        left: 12px;
+        display: flex;
+        align-items: flex-start;
+        flex-grow: 0;
+        width: 36px;
+        height: 36px;
+    }
+}
